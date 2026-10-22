@@ -1,0 +1,232 @@
+{
+  "schema_version": "0.1",
+  "fictional": true,
+  "fictional_notice": "ALL CUSTOMER, PERSON, SYSTEM, INVENTORY, DATE, RISK, AND DESIGN VALUES IN THIS FILE ARE FICTIONAL DEMONSTRATION DATA.",
+  "customer": {
+    "name": "Fictional Northstar Research Group",
+    "industry": "Fictional scientific services",
+    "primary_region": "Fictional United Kingdom operating region",
+    "contact_name": "Fictional Jordan Lee"
+  },
+  "project": {
+    "name": "Fictional Project Aurora Azure Migration",
+    "sponsor": "Fictional Morgan Reed",
+    "owner": "Fictional Avery Patel",
+    "scope": "Fictional migration of three demonstration applications and their supporting data services to a governed Azure landing zone.",
+    "target_start": "2027-01-11",
+    "target_completion": "2027-07-30"
+  },
+  "source_infrastructure_inventory": [
+    {
+      "id": "FICTIONAL-INF-001",
+      "name": "Fictional VMware application cluster",
+      "category": "compute",
+      "location": "Fictional London data centre",
+      "quantity": 12,
+      "operating_system": "Fictional mix of Windows Server 2019 and Ubuntu 22.04",
+      "specification": "Fictional 8 vCPU and 32 GiB RAM average virtual machine"
+    },
+    {
+      "id": "FICTIONAL-INF-002",
+      "name": "Fictional SQL Server availability group",
+      "category": "database",
+      "location": "Fictional London data centre",
+      "quantity": 2,
+      "operating_system": "Fictional Windows Server 2019",
+      "specification": "Fictional SQL Server 2019 Enterprise with 4 TiB allocated storage"
+    },
+    {
+      "id": "FICTIONAL-INF-003",
+      "name": "Fictional research file estate",
+      "category": "storage",
+      "location": "Fictional Manchester data centre",
+      "quantity": 1,
+      "operating_system": "Fictional storage appliance OS",
+      "specification": "Fictional 18 TiB used capacity with 12 percent annual growth"
+    }
+  ],
+  "application_inventory": [
+    {
+      "id": "FICTIONAL-APP-001",
+      "name": "Fictional Atlas Portal",
+      "owner": "Fictional Research Operations",
+      "business_criticality": "high",
+      "current_hosting": "Fictional IIS virtual machines",
+      "data_classification": "confidential",
+      "migration_disposition": "replatform"
+    },
+    {
+      "id": "FICTIONAL-APP-002",
+      "name": "Fictional Beacon Scheduler",
+      "owner": "Fictional Laboratory Services",
+      "business_criticality": "critical",
+      "current_hosting": "Fictional Windows service cluster",
+      "data_classification": "restricted",
+      "migration_disposition": "refactor"
+    },
+    {
+      "id": "FICTIONAL-APP-003",
+      "name": "Fictional Cedar Archive",
+      "owner": "Fictional Records Team",
+      "business_criticality": "medium",
+      "current_hosting": "Fictional file and SQL servers",
+      "data_classification": "internal",
+      "migration_disposition": "rehost"
+    }
+  ],
+  "application_dependencies": [
+    {
+      "source_application_id": "FICTIONAL-APP-001",
+      "target_application_id": "FICTIONAL-APP-002",
+      "dependency_type": "synchronous",
+      "notes": "Fictional HTTPS scheduling request dependency."
+    },
+    {
+      "source_application_id": "FICTIONAL-APP-002",
+      "target_application_id": "FICTIONAL-APP-003",
+      "dependency_type": "file",
+      "notes": "Fictional nightly result archive transfer."
+    }
+  ],
+  "current_state_observations": [
+    {
+      "category": "Fictional resilience observation",
+      "observation": "Fictional recovery procedures rely on manual virtual-machine restoration.",
+      "impact": "Fictional recovery objectives may not be met during a regional incident."
+    },
+    {
+      "category": "Fictional operations observation",
+      "observation": "Fictional application telemetry is retained in separate local tools.",
+      "impact": "Fictional incident diagnosis requires cross-team log collection."
+    },
+    {
+      "category": "Fictional security observation",
+      "observation": "Fictional privileged service accounts use long-lived credentials.",
+      "impact": "Fictional credential exposure would increase lateral-movement risk."
+    }
+  ],
+  "proposed_azure_target_services": [
+    {
+      "workload": "Fictional Atlas Portal",
+      "azure_service": "Azure App Service",
+      "region": "UK South",
+      "rationale": "Fictional managed web hosting reduces operating-system management."
+    },
+    {
+      "workload": "Fictional Beacon Scheduler",
+      "azure_service": "Azure Kubernetes Service",
+      "region": "UK South",
+      "rationale": "Fictional container orchestration supports isolated scheduling workers."
+    },
+    {
+      "workload": "Fictional relational data tier",
+      "azure_service": "Azure SQL Managed Instance",
+      "region": "UK South",
+      "rationale": "Fictional compatibility requirements favour managed SQL Server semantics."
+    },
+    {
+      "workload": "Fictional Cedar Archive",
+      "azure_service": "Azure Files",
+      "region": "UK West",
+      "rationale": "Fictional SMB compatibility supports phased application migration."
+    }
+  ],
+  "migration_waves": [
+    {
+      "wave": 1,
+      "name": "Fictional foundation and Cedar pilot",
+      "application_ids": ["FICTIONAL-APP-003"],
+      "target_start": "2027-01-11",
+      "target_end": "2027-03-05",
+      "exit_criteria": "Fictional landing-zone controls pass and Cedar backup restoration is demonstrated."
+    },
+    {
+      "wave": 2,
+      "name": "Fictional Atlas replatform",
+      "application_ids": ["FICTIONAL-APP-001"],
+      "target_start": "2027-03-08",
+      "target_end": "2027-05-14",
+      "exit_criteria": "Fictional Atlas performance and recovery tests meet agreed targets."
+    },
+    {
+      "wave": 3,
+      "name": "Fictional Beacon refactor",
+      "application_ids": ["FICTIONAL-APP-002"],
+      "target_start": "2027-05-17",
+      "target_end": "2027-07-30",
+      "exit_criteria": "Fictional end-to-end scheduling and security accreditation are complete."
+    }
+  ],
+  "risks_and_assumptions": {
+    "risks": [
+      {
+        "id": "FICTIONAL-RISK-001",
+        "description": "Fictional laboratory integrations may use undocumented source addresses.",
+        "likelihood": "medium",
+        "impact": "high",
+        "mitigation": "Fictional packet capture and owner validation before wave planning."
+      },
+      {
+        "id": "FICTIONAL-RISK-002",
+        "description": "Fictional SQL compatibility testing may identify unsupported features.",
+        "likelihood": "medium",
+        "impact": "medium",
+        "mitigation": "Fictional compatibility assessment and rollback rehearsal."
+      }
+    ],
+    "assumptions": [
+      {
+        "id": "FICTIONAL-ASM-001",
+        "description": "Fictional ExpressRoute connectivity will be available before the first migration wave.",
+        "validation_owner": "Fictional Network Lead"
+      },
+      {
+        "id": "FICTIONAL-ASM-002",
+        "description": "Fictional application owners will provide representative performance tests.",
+        "validation_owner": "Fictional Programme Lead"
+      }
+    ]
+  },
+  "security_and_networking_requirements": {
+    "security": [
+      {
+        "id": "FICTIONAL-SEC-001",
+        "requirement": "Fictional workloads must use managed identities where supported.",
+        "priority": "must"
+      },
+      {
+        "id": "FICTIONAL-SEC-002",
+        "requirement": "Fictional confidential and restricted data must be encrypted with customer-managed keys.",
+        "priority": "must"
+      }
+    ],
+    "networking": [
+      {
+        "id": "FICTIONAL-NET-001",
+        "requirement": "Fictional production ingress must traverse Azure Application Gateway with WAF enabled.",
+        "priority": "must"
+      },
+      {
+        "id": "FICTIONAL-NET-002",
+        "requirement": "Fictional platform services should use private endpoints and central DNS resolution.",
+        "priority": "should"
+      }
+    ]
+  },
+  "outstanding_design_decisions": [
+    {
+      "id": "FICTIONAL-DD-001",
+      "decision": "Fictional selection of active-passive or active-active regional recovery for Beacon.",
+      "owner": "Fictional Solution Design Authority",
+      "due_date": "2027-02-12",
+      "status": "open"
+    },
+    {
+      "id": "FICTIONAL-DD-002",
+      "decision": "Fictional retention period for migrated Cedar archive data.",
+      "owner": "Fictional Records Owner",
+      "due_date": "2027-02-19",
+      "status": "in_review"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "passed": true,
+  "source_sha256": "b1788e914183ed574649725b64cbe6dc358bc2f2b0ca42a1117a9035ac93a691",
+  "generated_sha256": "5a19090753d8b65dd927a336df14ed1bde57e21f99b9a601d77d7d47d016df04",
+  "generated_package": {
+    "valid": true,
+    "entry_count": 20,
+    "xml_part_count": 18,
+    "relationship_count": 16,
+    "total_uncompressed_size": 929741,
+    "highest_compression_ratio": 32.156,
+    "limits": {
+      "max_entries": 2048,
+      "max_entry_size": 104857600,
+      "max_total_uncompressed_size": 524288000,
+      "max_compression_ratio": 200.0
+    }
+  },
+  "part_hash_preservation": {
+    "passed": true,
+    "expected_modified_parts": [
+      "word/document.xml"
+    ],
+    "changed_parts": [
+      "word/document.xml"
+    ],
+    "unexpected_changed_parts": [],
+    "missing_parts": [],
+    "added_parts": [],
+    "untouched_count": 19,
+    "preserved_count": 19
+  },
+  "read_only_assets": [
+    {
+      "asset_id": "asset.0",
+      "kind": "media",
+      "package_location": "docProps/thumbnail.jpeg",
+      "source_sha256": "96367138dc44ce09bf2c8f0f8e49348a1478d2c5c0af69bbc2bbc38b63cdcead",
+      "generated_sha256": "96367138dc44ce09bf2c8f0f8e49348a1478d2c5c0af69bbc2bbc38b63cdcead",
+      "preserved": true
+    },
+    {
+      "asset_id": "asset.1",
+      "kind": "image",
+      "package_location": "word/media/image1.png",
+      "source_sha256": "04b4dcaa3d81e656402173f32ec7defa7e7c2487944e288cee7916903a68a0ac",
+      "generated_sha256": "04b4dcaa3d81e656402173f32ec7defa7e7c2487944e288cee7916903a68a0ac",
+      "preserved": true
+    }
+  ]
+}

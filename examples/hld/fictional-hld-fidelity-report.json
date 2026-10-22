@@ -1,0 +1,232 @@
+{
+  "schema_version": "1.0",
+  "mode": "patch",
+  "passed": true,
+  "package_integrity": {
+    "passed": true,
+    "original": {
+      "valid": true,
+      "entry_count": 20,
+      "xml_part_count": 18,
+      "relationship_count": 16,
+      "total_uncompressed_size": 912622,
+      "highest_compression_ratio": 32.156,
+      "limits": {
+        "max_entries": 2048,
+        "max_entry_size": 104857600,
+        "max_total_uncompressed_size": 524288000,
+        "max_compression_ratio": 200.0
+      }
+    },
+    "generated": {
+      "valid": true,
+      "entry_count": 20,
+      "xml_part_count": 18,
+      "relationship_count": 16,
+      "total_uncompressed_size": 929741,
+      "highest_compression_ratio": 32.156,
+      "limits": {
+        "max_entries": 2048,
+        "max_entry_size": 104857600,
+        "max_total_uncompressed_size": 524288000,
+        "max_compression_ratio": 200.0
+      }
+    }
+  },
+  "untouched_part_hash_preservation": {
+    "passed": true,
+    "expected_modified_parts": [
+      "word/document.xml"
+    ],
+    "changed_parts": [
+      "word/document.xml"
+    ],
+    "unexpected_changed_parts": [],
+    "missing_parts": [],
+    "added_parts": [],
+    "untouched_count": 19,
+    "preserved_count": 19
+  },
+  "semantic_text_preservation": {
+    "passed": true,
+    "exact_match": false,
+    "matches_expected_patch": true,
+    "original_paragraph_count": 149,
+    "generated_paragraph_count": 230,
+    "original_text_sha256": "c0040242222bd74c8b2bf1a4d7f34f54810cfde739974bcc71e22e2ff83952c0",
+    "generated_text_sha256": "b212685c44fd482987288f91c72e1c2314ef0b965e2c0373545f81fbf49e4277",
+    "expected_text_sha256": "5673e651688903dbf8331120f1835a12efdcae637f87ab3df6b94b9fd7272ad4",
+    "unexpected_removed_text": [],
+    "unexpected_added_text": [],
+    "intentional_changes_allowed": true
+  },
+  "style_and_numbering_preservation": {
+    "passed": true,
+    "styles": {
+      "original": "3707b7496bb1a3e87822034fed1da24efa4f7a00859c9ee607371d7066f01a97",
+      "generated": "3707b7496bb1a3e87822034fed1da24efa4f7a00859c9ee607371d7066f01a97",
+      "preserved": true
+    },
+    "numbering": {
+      "original": "70976f19cbcd896e51890859fe6ecb3467a5a7ad0c040160fedc5a1993cb09ce",
+      "generated": "70976f19cbcd896e51890859fe6ecb3467a5a7ad0c040160fedc5a1993cb09ce",
+      "preserved": true
+    }
+  },
+  "visual_differences": {
+    "performed": true,
+    "passed": true,
+    "mode": "patch",
+    "page_count_match": true,
+    "unexpected_changed_pages": [],
+    "report": {
+      "passed": true,
+      "mode": "patch",
+      "original_page_count": 8,
+      "generated_page_count": 8,
+      "page_count_match": true,
+      "thresholds": {
+        "difference_ratio": 0.001,
+        "expected_difference_ratio": 0.65,
+        "pixel_intensity": 12,
+        "dimension_tolerance_pt": 0.5,
+        "dpi": 144
+      },
+      "expected_changed_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "unexpected_changed_pages": [],
+      "pages": [
+        {
+          "page": 1,
+          "status": "expected_change",
+          "difference_ratio": 0.02632122,
+          "dimension_match": true,
+          "original_size_pt": [
+            612.0,
+            792.0
+          ],
+          "generated_size_pt": [
+            612.0,
+            792.0
+          ]
+        },
+        {
+          "page": 2,
+          "status": "expected_change",
+          "difference_ratio": 0.00792185,
+          "dimension_match": true,
+          "original_size_pt": [
+            612.0,
+            792.0
+          ],
+          "generated_size_pt": [
+            612.0,
+            792.0
+          ]
+        },
+        {
+          "page": 3,
+          "status": "expected_change",
+          "difference_ratio": 0.1648764,
+          "dimension_match": true,
+          "original_size_pt": [
+            612.0,
+            792.0
+          ],
+          "generated_size_pt": [
+            612.0,
+            792.0
+          ]
+        },
+        {
+          "page": 4,
+          "status": "expected_change",
+          "difference_ratio": 0.11510324,
+          "dimension_match": true,
+          "original_size_pt": [
+            612.0,
+            792.0
+          ],
+          "generated_size_pt": [
+            612.0,
+            792.0
+          ]
+        },
+        {
+          "page": 5,
+          "status": "expected_change",
+          "difference_ratio": 0.12421756,
+          "dimension_match": true,
+          "original_size_pt": [
+            612.0,
+            792.0
+          ],
+          "generated_size_pt": [
+            612.0,
+            792.0
+          ]
+        },
+        {
+          "page": 6,
+          "status": "expected_change",
+          "difference_ratio": 0.10627672,
+          "dimension_match": true,
+          "original_size_pt": [
+            612.0,
+            792.0
+          ],
+          "generated_size_pt": [
+            612.0,
+            792.0
+          ]
+        },
+        {
+          "page": 7,
+          "status": "expected_change",
+          "difference_ratio": 0.10874162,
+          "dimension_match": true,
+          "original_size_pt": [
+            612.0,
+            792.0
+          ],
+          "generated_size_pt": [
+            612.0,
+            792.0
+          ]
+        },
+        {
+          "page": 8,
+          "status": "expected_change",
+          "difference_ratio": 0.23427288,
+          "dimension_match": true,
+          "original_size_pt": [
+            612.0,
+            792.0
+          ],
+          "generated_size_pt": [
+            612.0,
+            792.0
+          ]
+        }
+      ],
+      "renderer": "soffice",
+      "original_docx": "fictional-azure-migration-hld-template.docx",
+      "generated_docx": "fictional-azure-migration-hld-output.docx",
+      "artifacts_retained": false
+    }
+  },
+  "unsupported_ooxml_structures": [
+    "drawing",
+    "field",
+    "field_instruction",
+    "line_or_page_break"
+  ]
+}

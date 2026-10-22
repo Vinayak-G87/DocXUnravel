@@ -1,0 +1,313 @@
+{
+  "contract": {
+    "schema_version": "1.1",
+    "source_sha256": "b1788e914183ed574649725b64cbe6dc358bc2f2b0ca42a1117a9035ac93a691",
+    "profile_sha256": "f0a062c711d2044ad9696e22d18f70d5f55bb6274b2d9af5adf6f9d36f56f640"
+  },
+  "elements": {
+    "body.t0.r1.c1.p0": {
+      "expected": "Template customer",
+      "value": "Fictional Northstar Research Group",
+      "format_policy": "preserve_first_run"
+    },
+    "body.t0.r2.c1.p0": {
+      "expected": "Template project",
+      "value": "Fictional Project Aurora Azure Migration",
+      "format_policy": "preserve_first_run"
+    },
+    "body.t0.r3.c1.p0": {
+      "expected": "Template sponsor",
+      "value": "Fictional Morgan Reed",
+      "format_policy": "preserve_first_run"
+    },
+    "body.t0.r4.c1.p0": {
+      "expected": "Template owner",
+      "value": "Fictional Avery Patel",
+      "format_policy": "preserve_first_run"
+    },
+    "body.t0.r5.c1.p0": {
+      "expected": "YYYY-MM-DD",
+      "value": "2027-01-11",
+      "format_policy": "preserve_first_run"
+    },
+    "body.t0.r6.c1.p0": {
+      "expected": "YYYY-MM-DD",
+      "value": "2027-07-30",
+      "format_policy": "preserve_first_run"
+    },
+    "body.p7": {
+      "expected": "Template executive summary — replace with approved migration scope.",
+      "value": "Fictional migration of three demonstration applications and their supporting data services to a governed Azure landing zone.",
+      "format_policy": "preserve_first_run"
+    }
+  },
+  "tokens": {
+    "CUSTOMER": "Fictional Northstar Research Group"
+  },
+  "operations": [
+    {
+      "op": "repeat_table_rows",
+      "target": "body.t1",
+      "template_row": 1,
+      "rows": [
+        [
+          "Fictional resilience observation",
+          "Fictional recovery procedures rely on manual virtual-machine restoration.",
+          "Fictional recovery objectives may not be met during a regional incident."
+        ],
+        [
+          "Fictional operations observation",
+          "Fictional application telemetry is retained in separate local tools.",
+          "Fictional incident diagnosis requires cross-team log collection."
+        ],
+        [
+          "Fictional security observation",
+          "Fictional privileged service accounts use long-lived credentials.",
+          "Fictional credential exposure would increase lateral-movement risk."
+        ]
+      ]
+    },
+    {
+      "op": "repeat_table_rows",
+      "target": "body.t2",
+      "template_row": 1,
+      "rows": [
+        [
+          "FICTIONAL-APP-001",
+          "Fictional Atlas Portal",
+          "Fictional Research Operations",
+          "high",
+          "Fictional IIS virtual machines",
+          "confidential",
+          "replatform"
+        ],
+        [
+          "FICTIONAL-APP-002",
+          "Fictional Beacon Scheduler",
+          "Fictional Laboratory Services",
+          "critical",
+          "Fictional Windows service cluster",
+          "restricted",
+          "refactor"
+        ],
+        [
+          "FICTIONAL-APP-003",
+          "Fictional Cedar Archive",
+          "Fictional Records Team",
+          "medium",
+          "Fictional file and SQL servers",
+          "internal",
+          "rehost"
+        ]
+      ]
+    },
+    {
+      "op": "repeat_table_rows",
+      "target": "body.t3",
+      "template_row": 1,
+      "rows": [
+        [
+          "Fictional Atlas Portal",
+          "Azure App Service",
+          "UK South",
+          "Fictional managed web hosting reduces operating-system management."
+        ],
+        [
+          "Fictional Beacon Scheduler",
+          "Azure Kubernetes Service",
+          "UK South",
+          "Fictional container orchestration supports isolated scheduling workers."
+        ],
+        [
+          "Fictional relational data tier",
+          "Azure SQL Managed Instance",
+          "UK South",
+          "Fictional compatibility requirements favour managed SQL Server semantics."
+        ],
+        [
+          "Fictional Cedar Archive",
+          "Azure Files",
+          "UK West",
+          "Fictional SMB compatibility supports phased application migration."
+        ]
+      ]
+    },
+    {
+      "op": "repeat_table_rows",
+      "target": "body.t4",
+      "template_row": 1,
+      "rows": [
+        [
+          "1",
+          "Fictional foundation and Cedar pilot",
+          "FICTIONAL-APP-003",
+          "2027-01-11",
+          "2027-03-05",
+          "Fictional landing-zone controls pass and Cedar backup restoration is demonstrated."
+        ],
+        [
+          "2",
+          "Fictional Atlas replatform",
+          "FICTIONAL-APP-001",
+          "2027-03-08",
+          "2027-05-14",
+          "Fictional Atlas performance and recovery tests meet agreed targets."
+        ],
+        [
+          "3",
+          "Fictional Beacon refactor",
+          "FICTIONAL-APP-002",
+          "2027-05-17",
+          "2027-07-30",
+          "Fictional end-to-end scheduling and security accreditation are complete."
+        ]
+      ]
+    },
+    {
+      "op": "repeat_table_rows",
+      "target": "body.t5",
+      "template_row": 1,
+      "rows": [
+        [
+          "FICTIONAL-SEC-001",
+          "Fictional workloads must use managed identities where supported.",
+          "must"
+        ],
+        [
+          "FICTIONAL-SEC-002",
+          "Fictional confidential and restricted data must be encrypted with customer-managed keys.",
+          "must"
+        ]
+      ]
+    },
+    {
+      "op": "repeat_table_rows",
+      "target": "body.t6",
+      "template_row": 1,
+      "rows": [
+        [
+          "FICTIONAL-NET-001",
+          "Fictional production ingress must traverse Azure Application Gateway with WAF enabled.",
+          "must"
+        ],
+        [
+          "FICTIONAL-NET-002",
+          "Fictional platform services should use private endpoints and central DNS resolution.",
+          "should"
+        ]
+      ]
+    },
+    {
+      "op": "repeat_table_rows",
+      "target": "body.t7",
+      "template_row": 1,
+      "rows": [
+        [
+          "FICTIONAL-RISK-001",
+          "Fictional laboratory integrations may use undocumented source addresses.",
+          "medium",
+          "high",
+          "Fictional packet capture and owner validation before wave planning."
+        ],
+        [
+          "FICTIONAL-RISK-002",
+          "Fictional SQL compatibility testing may identify unsupported features.",
+          "medium",
+          "medium",
+          "Fictional compatibility assessment and rollback rehearsal."
+        ]
+      ]
+    },
+    {
+      "op": "repeat_table_rows",
+      "target": "body.t8",
+      "template_row": 1,
+      "rows": [
+        [
+          "FICTIONAL-ASM-001",
+          "Fictional ExpressRoute connectivity will be available before the first migration wave.",
+          "Fictional Network Lead"
+        ],
+        [
+          "FICTIONAL-ASM-002",
+          "Fictional application owners will provide representative performance tests.",
+          "Fictional Programme Lead"
+        ]
+      ]
+    },
+    {
+      "op": "repeat_table_rows",
+      "target": "body.t9",
+      "template_row": 1,
+      "rows": [
+        [
+          "FICTIONAL-DD-001",
+          "Fictional selection of active-passive or active-active regional recovery for Beacon.",
+          "Fictional Solution Design Authority",
+          "2027-02-12",
+          "open"
+        ],
+        [
+          "FICTIONAL-DD-002",
+          "Fictional retention period for migrated Cedar archive data.",
+          "Fictional Records Owner",
+          "2027-02-19",
+          "in_review"
+        ]
+      ]
+    },
+    {
+      "op": "repeat_table_rows",
+      "target": "body.t10",
+      "template_row": 1,
+      "rows": [
+        [
+          "FICTIONAL-INF-001",
+          "Fictional VMware application cluster",
+          "compute",
+          "Fictional London data centre",
+          "12",
+          "Fictional mix of Windows Server 2019 and Ubuntu 22.04",
+          "Fictional 8 vCPU and 32 GiB RAM average virtual machine"
+        ],
+        [
+          "FICTIONAL-INF-002",
+          "Fictional SQL Server availability group",
+          "database",
+          "Fictional London data centre",
+          "2",
+          "Fictional Windows Server 2019",
+          "Fictional SQL Server 2019 Enterprise with 4 TiB allocated storage"
+        ],
+        [
+          "FICTIONAL-INF-003",
+          "Fictional research file estate",
+          "storage",
+          "Fictional Manchester data centre",
+          "1",
+          "Fictional storage appliance OS",
+          "Fictional 18 TiB used capacity with 12 percent annual growth"
+        ]
+      ]
+    },
+    {
+      "op": "repeat_table_rows",
+      "target": "body.t11",
+      "template_row": 1,
+      "rows": [
+        [
+          "FICTIONAL-APP-001",
+          "FICTIONAL-APP-002",
+          "synchronous",
+          "Fictional HTTPS scheduling request dependency."
+        ],
+        [
+          "FICTIONAL-APP-002",
+          "FICTIONAL-APP-003",
+          "file",
+          "Fictional nightly result archive transfer."
+        ]
+      ]
+    }
+  ]
+}

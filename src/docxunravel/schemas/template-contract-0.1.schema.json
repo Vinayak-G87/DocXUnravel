@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://docxunravel.dev/schemas/template-contract-0.1.schema.json",
+  "title": "DocXUnravel semantic template contract",
+  "description": "Maps business-facing fields to IDs in one exact DocXUnravel semantic profile. It is distinct from the schema 1.1 patch contract.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract_version", "document_type", "binding", "fields"],
+  "properties": {
+    "contract_version": {"const": "0.1"},
+    "document_type": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_.-]*$"},
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version", "source_sha256", "profile_sha256"],
+      "properties": {
+        "schema_version": {"const": "1.1"},
+        "source_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "profile_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "fields": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {"pattern": "^[A-Za-z_][A-Za-z0-9_.-]*$"},
+      "additionalProperties": {"$ref": "#/$defs/field"}
+    }
+  },
+  "$defs": {
+    "field": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "target", "required"],
+      "properties": {
+        "type": {"enum": ["text", "table_cell", "table_rows", "placeholder"]},
+        "target": {"type": "string", "minLength": 1},
+        "required": {"type": "boolean"},
+        "description": {"type": "string"},
+        "data_path": {"type": "string", "pattern": "^($|/)"},
+        "format_policy": {
+          "enum": [
+            "preserve_first_run",
+            "preserve_common_formatting",
+            "replace_text_only",
+            "reject_mixed_runs"
+          ]
+        },
+        "token": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_.-]*$"},
+        "template_row": {"type": "integer", "minimum": 0},
+        "columns": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {"pattern": "^[A-Za-z_][A-Za-z0-9_.-]*$"},
+          "additionalProperties": {"type": "integer", "minimum": 0}
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"type": {"const": "placeholder"}}, "required": ["type"]},
+          "then": {"required": ["token"]},
+          "else": {"not": {"required": ["token"]}}
+        },
+        {
+          "if": {"properties": {"type": {"const": "table_rows"}}, "required": ["type"]},
+          "then": {"required": ["template_row", "columns"]},
+          "else": {
+            "allOf": [
+              {"not": {"required": ["template_row"]}},
+              {"not": {"required": ["columns"]}}
+            ]
+          }
+        },
+        {
+          "if": {"properties": {"type": {"enum": ["text", "table_cell"]}}, "required": ["type"]},
+          "else": {"not": {"required": ["format_policy"]}}
+        }
+      ]
+    }
+  }
+}

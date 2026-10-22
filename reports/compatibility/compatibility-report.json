@@ -1,0 +1,3878 @@
+{
+  "schema_version": "1.0",
+  "corpus": "DocXUnravel-Corpus",
+  "generated_at_epoch": 1792184050.775761,
+  "duration_seconds": 101.206,
+  "visual_dependencies": {
+    "available": true,
+    "renderer": "/opt/homebrew/bin/soffice",
+    "imaging": true,
+    "required_python_packages": [
+      "PyMuPDF",
+      "Pillow"
+    ]
+  },
+  "document_count": 28,
+  "stage_status_counts": {
+    "extraction_status": {
+      "pass": 27,
+      "fail": 1
+    },
+    "profiling_status": {
+      "pass": 27,
+      "fail": 1
+    },
+    "noop_reconstruction_status": {
+      "pass": 27,
+      "not_run": 1
+    },
+    "package_integrity_status": {
+      "pass": 27,
+      "not_run": 1
+    },
+    "noop_visual_status": {
+      "pass": 27,
+      "not_run": 1
+    },
+    "text_edit_status": {
+      "pass": 23,
+      "unsupported": 4,
+      "not_run": 1
+    },
+    "modified_visual_status": {
+      "differences_detected": 23,
+      "not_run": 5
+    }
+  },
+  "unsupported_feature_counts": {
+    "bookmark": 17,
+    "drawing": 12,
+    "tab": 10,
+    "footnotes": 8,
+    "content_control": 7,
+    "endnotes": 7,
+    "line_or_page_break": 6,
+    "hyperlink": 5,
+    "custom_xml": 4,
+    "alternate_content": 3,
+    "legacy_drawing": 3,
+    "tracked_insertion": 3,
+    "field": 3,
+    "field_instruction": 3,
+    "soft_hyphen": 2,
+    "tracked_deletion": 2,
+    "comment_reference": 2,
+    "comments": 2,
+    "office_math": 1,
+    "carriage_return": 1,
+    "nonbreaking_hyphen": 1
+  },
+  "failure_classification_counts": {
+    "none": 23,
+    "unsupported_no_safe_paragraph": 4,
+    "unsupported_or_malformed_source": 1
+  },
+  "documents": [
+    {
+      "id": "4c49595fa5da",
+      "filename": "plutext_docx4j-python__2010-glow-then-AlternateContent.docx",
+      "source": "plutext_docx4j-python",
+      "relative_path": "plutext_docx4j-python__2010-glow-then-AlternateContent.docx",
+      "file_size": 8378,
+      "source_sha256": "205634d8c232f8660754cc258c37f15b22db6d5d7e4a525771e74d84db594ced",
+      "paragraph_count": 2,
+      "table_count": 0,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0
+      ],
+      "text_edit_status": "pass",
+      "text_edit_target": {
+        "id": "body.p0",
+        "original": "My first 2010 document.",
+        "replacement": "My first 2010 document. [DocXUnravel compatibility edit]"
+      },
+      "modified_visual_status": "differences_detected",
+      "modified_visual_max_difference_ratio": 0.00443002,
+      "modified_visual_page_ratios": [
+        0.00443002
+      ],
+      "unsupported_features": [
+        "alternate_content",
+        "drawing",
+        "legacy_drawing",
+        "tab"
+      ],
+      "warnings": [],
+      "errors": [],
+      "failure_classification": null,
+      "failure_artifacts": null,
+      "timings_seconds": {
+        "extract_and_profile": 0.0055,
+        "noop_reconstruction": 0.0019,
+        "noop_visual": 1.829,
+        "text_edit": 0.0121,
+        "modified_visual": 1.8148
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 8,
+        "xml_part_count": 7,
+        "relationship_count": 5,
+        "total_uncompressed_size": 23696,
+        "highest_compression_ratio": 6.874,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      },
+      "text_edit_fidelity": {
+        "schema_version": "1.0",
+        "mode": "patch",
+        "passed": true,
+        "package_integrity": {
+          "passed": true,
+          "original": {
+            "valid": true,
+            "entry_count": 8,
+            "xml_part_count": 7,
+            "relationship_count": 5,
+            "total_uncompressed_size": 23696,
+            "highest_compression_ratio": 6.874,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          },
+          "generated": {
+            "valid": true,
+            "entry_count": 8,
+            "xml_part_count": 7,
+            "relationship_count": 5,
+            "total_uncompressed_size": 23451,
+            "highest_compression_ratio": 6.874,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          }
+        },
+        "untouched_part_hash_preservation": {
+          "passed": true,
+          "expected_modified_parts": [
+            "word/document.xml"
+          ],
+          "changed_parts": [
+            "word/document.xml"
+          ],
+          "unexpected_changed_parts": [],
+          "missing_parts": [],
+          "added_parts": [],
+          "untouched_count": 7,
+          "preserved_count": 7
+        },
+        "semantic_text_preservation": {
+          "passed": true,
+          "exact_match": false,
+          "matches_expected_patch": true,
+          "original_paragraph_count": 2,
+          "generated_paragraph_count": 2,
+          "original_text_sha256": "f84639a18dfd0eff1c9661524977fc97e70154f43c2dcd010b9c7567e617f05a",
+          "generated_text_sha256": "d91cac56351b75586b18655bf97d726f7bd66d82731eab1b030f496c22bae42b",
+          "expected_text_sha256": "d91cac56351b75586b18655bf97d726f7bd66d82731eab1b030f496c22bae42b",
+          "unexpected_removed_text": [],
+          "unexpected_added_text": [],
+          "intentional_changes_allowed": true
+        },
+        "style_and_numbering_preservation": {
+          "passed": true,
+          "styles": {
+            "original": "4fef1342cd4f32e29c390de312c279983c93b23c4004f503b36840089b5dd302",
+            "generated": "4fef1342cd4f32e29c390de312c279983c93b23c4004f503b36840089b5dd302",
+            "preserved": true
+          },
+          "numbering": {
+            "original": null,
+            "generated": null,
+            "preserved": true
+          }
+        },
+        "visual_differences": {
+          "performed": false,
+          "passed": null,
+          "mode": null,
+          "page_count_match": null,
+          "unexpected_changed_pages": [],
+          "report": null
+        },
+        "unsupported_ooxml_structures": [
+          "drawing",
+          "legacy_drawing"
+        ]
+      },
+      "modified_visual_unexpected_pages": [
+        1
+      ]
+    },
+    {
+      "id": "7a97180b573a",
+      "filename": "plutext_docx4j-python__2010-mcAlternateContent-in-header.docx",
+      "source": "plutext_docx4j-python",
+      "relative_path": "plutext_docx4j-python__2010-mcAlternateContent-in-header.docx",
+      "file_size": 22550,
+      "source_sha256": "8153ad9348f89f0adc28d3613cd1f3fd404625663a847e8d707f34235e1c643e",
+      "paragraph_count": 4,
+      "table_count": 0,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0
+      ],
+      "text_edit_status": "unsupported",
+      "text_edit_target": null,
+      "modified_visual_status": "not_run",
+      "modified_visual_max_difference_ratio": null,
+      "modified_visual_page_ratios": [],
+      "unsupported_features": [
+        "alternate_content",
+        "content_control",
+        "drawing",
+        "endnotes",
+        "footnotes",
+        "legacy_drawing",
+        "tab"
+      ],
+      "warnings": [
+        {
+          "code": "NO_SAFE_EDIT_TARGET",
+          "message": "No plain, non-revision, single-format body paragraph was available."
+        }
+      ],
+      "errors": [],
+      "failure_classification": "unsupported_no_safe_paragraph",
+      "failure_artifacts": ".compatibility-run/7a97180b573a",
+      "timings_seconds": {
+        "extract_and_profile": 0.0079,
+        "noop_reconstruction": 0.0039,
+        "noop_visual": 1.7676
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 18,
+        "xml_part_count": 15,
+        "relationship_count": 15,
+        "total_uncompressed_size": 52141,
+        "highest_compression_ratio": 9.412,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      }
+    },
+    {
+      "id": "8ff52bdc2cc5",
+      "filename": "plutext_docx4j-python__2010-sample1.docx",
+      "source": "plutext_docx4j-python",
+      "relative_path": "plutext_docx4j-python__2010-sample1.docx",
+      "file_size": 13502,
+      "source_sha256": "8f703c651f33ea312fa20e25d6895b530c5619c6d9742e34188de3f91e1dc565",
+      "paragraph_count": 4,
+      "table_count": 0,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0
+      ],
+      "text_edit_status": "pass",
+      "text_edit_target": {
+        "id": "body.p0",
+        "original": "My first 2010 document.",
+        "replacement": "My first 2010 document. [DocXUnravel compatibility edit]"
+      },
+      "modified_visual_status": "differences_detected",
+      "modified_visual_max_difference_ratio": 0.00647822,
+      "modified_visual_page_ratios": [
+        0.00647822
+      ],
+      "unsupported_features": [
+        "bookmark",
+        "office_math"
+      ],
+      "warnings": [],
+      "errors": [],
+      "failure_classification": null,
+      "failure_artifacts": null,
+      "timings_seconds": {
+        "extract_and_profile": 0.0049,
+        "noop_reconstruction": 0.003,
+        "noop_visual": 1.8009,
+        "text_edit": 0.0125,
+        "modified_visual": 1.8305
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 12,
+        "xml_part_count": 12,
+        "relationship_count": 9,
+        "total_uncompressed_size": 52083,
+        "highest_compression_ratio": 9.462,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      },
+      "text_edit_fidelity": {
+        "schema_version": "1.0",
+        "mode": "patch",
+        "passed": true,
+        "package_integrity": {
+          "passed": true,
+          "original": {
+            "valid": true,
+            "entry_count": 12,
+            "xml_part_count": 12,
+            "relationship_count": 9,
+            "total_uncompressed_size": 52083,
+            "highest_compression_ratio": 7.814,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          },
+          "generated": {
+            "valid": true,
+            "entry_count": 12,
+            "xml_part_count": 12,
+            "relationship_count": 9,
+            "total_uncompressed_size": 52093,
+            "highest_compression_ratio": 9.462,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          }
+        },
+        "untouched_part_hash_preservation": {
+          "passed": true,
+          "expected_modified_parts": [
+            "word/document.xml"
+          ],
+          "changed_parts": [
+            "word/document.xml"
+          ],
+          "unexpected_changed_parts": [],
+          "missing_parts": [],
+          "added_parts": [],
+          "untouched_count": 11,
+          "preserved_count": 11
+        },
+        "semantic_text_preservation": {
+          "passed": true,
+          "exact_match": false,
+          "matches_expected_patch": true,
+          "original_paragraph_count": 4,
+          "generated_paragraph_count": 4,
+          "original_text_sha256": "560936d0eec99414e21317e5fd0d4afaf8d936a7f75acf41b09a2008e13cd913",
+          "generated_text_sha256": "3065c76f0702408a81e58295bdc978ed42164506b0aa2d73f4879938182eb9c6",
+          "expected_text_sha256": "3065c76f0702408a81e58295bdc978ed42164506b0aa2d73f4879938182eb9c6",
+          "unexpected_removed_text": [],
+          "unexpected_added_text": [],
+          "intentional_changes_allowed": true
+        },
+        "style_and_numbering_preservation": {
+          "passed": true,
+          "styles": {
+            "original": "f59d14d2efd2191a87cec66ea8ef68c20d27b19010ff7f43f3340a83fc394d9f",
+            "generated": "f59d14d2efd2191a87cec66ea8ef68c20d27b19010ff7f43f3340a83fc394d9f",
+            "preserved": true
+          },
+          "numbering": {
+            "original": null,
+            "generated": null,
+            "preserved": true
+          }
+        },
+        "visual_differences": {
+          "performed": false,
+          "passed": null,
+          "mode": null,
+          "page_count_match": null,
+          "unexpected_changed_pages": [],
+          "report": null
+        },
+        "unsupported_ooxml_structures": []
+      },
+      "modified_visual_unexpected_pages": [
+        1
+      ]
+    },
+    {
+      "id": "f36de16d002c",
+      "filename": "plutext_docx4j-python__2016_image_with_text_effects.docx",
+      "source": "plutext_docx4j-python",
+      "relative_path": "plutext_docx4j-python__2016_image_with_text_effects.docx",
+      "file_size": 60991,
+      "source_sha256": "820a2ae3118f9a2d05b32ee5dccdd0078165815dd715a2aeaf547f4cde5e611c",
+      "paragraph_count": 1,
+      "table_count": 0,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0
+      ],
+      "text_edit_status": "unsupported",
+      "text_edit_target": null,
+      "modified_visual_status": "not_run",
+      "modified_visual_max_difference_ratio": null,
+      "modified_visual_page_ratios": [],
+      "unsupported_features": [
+        "bookmark",
+        "drawing"
+      ],
+      "warnings": [
+        {
+          "code": "NO_SAFE_EDIT_TARGET",
+          "message": "No plain, non-revision, single-format body paragraph was available."
+        }
+      ],
+      "errors": [],
+      "failure_classification": "unsupported_no_safe_paragraph",
+      "failure_artifacts": ".compatibility-run/f36de16d002c",
+      "timings_seconds": {
+        "extract_and_profile": 0.0046,
+        "noop_reconstruction": 0.003,
+        "noop_visual": 1.9308
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 13,
+        "xml_part_count": 11,
+        "relationship_count": 10,
+        "total_uncompressed_size": 98146,
+        "highest_compression_ratio": 10.175,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      }
+    },
+    {
+      "id": "b0ba33d1e1c4",
+      "filename": "plutext_docx4j-python__DrawingML_GraphicData_wps.docx",
+      "source": "plutext_docx4j-python",
+      "relative_path": "plutext_docx4j-python__DrawingML_GraphicData_wps.docx",
+      "file_size": 32032,
+      "source_sha256": "8ae530b3462293b62bebb9435547cb552e6ee06e482c36bb6d9ac0a0b5740bf1",
+      "paragraph_count": 3,
+      "table_count": 0,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0
+      ],
+      "text_edit_status": "pass",
+      "text_edit_target": {
+        "id": "body.p0",
+        "original": "Milk glass",
+        "replacement": "Milk glass [DocXUnravel compatibility edit]"
+      },
+      "modified_visual_status": "differences_detected",
+      "modified_visual_max_difference_ratio": 0.01297389,
+      "modified_visual_page_ratios": [
+        0.01297389
+      ],
+      "unsupported_features": [
+        "alternate_content",
+        "drawing",
+        "legacy_drawing"
+      ],
+      "warnings": [],
+      "errors": [],
+      "failure_classification": null,
+      "failure_artifacts": null,
+      "timings_seconds": {
+        "extract_and_profile": 0.008,
+        "noop_reconstruction": 0.0036,
+        "noop_visual": 1.7944,
+        "text_edit": 0.0209,
+        "modified_visual": 1.8082
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 13,
+        "xml_part_count": 11,
+        "relationship_count": 10,
+        "total_uncompressed_size": 91552,
+        "highest_compression_ratio": 10.827,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      },
+      "text_edit_fidelity": {
+        "schema_version": "1.0",
+        "mode": "patch",
+        "passed": true,
+        "package_integrity": {
+          "passed": true,
+          "original": {
+            "valid": true,
+            "entry_count": 13,
+            "xml_part_count": 11,
+            "relationship_count": 10,
+            "total_uncompressed_size": 91552,
+            "highest_compression_ratio": 10.453,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          },
+          "generated": {
+            "valid": true,
+            "entry_count": 13,
+            "xml_part_count": 11,
+            "relationship_count": 10,
+            "total_uncompressed_size": 91400,
+            "highest_compression_ratio": 10.827,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          }
+        },
+        "untouched_part_hash_preservation": {
+          "passed": true,
+          "expected_modified_parts": [
+            "word/document.xml"
+          ],
+          "changed_parts": [
+            "word/document.xml"
+          ],
+          "unexpected_changed_parts": [],
+          "missing_parts": [],
+          "added_parts": [],
+          "untouched_count": 12,
+          "preserved_count": 12
+        },
+        "semantic_text_preservation": {
+          "passed": true,
+          "exact_match": false,
+          "matches_expected_patch": true,
+          "original_paragraph_count": 3,
+          "generated_paragraph_count": 3,
+          "original_text_sha256": "9b0190884a5e41eb2bb3b8c62fdd76962e0309a5bbc781fb161cb9e58c3cee9e",
+          "generated_text_sha256": "9f9d6b7d041ef1effe5a85da91e66d3deee1f05a2563df03151c0db79f6f5e23",
+          "expected_text_sha256": "9f9d6b7d041ef1effe5a85da91e66d3deee1f05a2563df03151c0db79f6f5e23",
+          "unexpected_removed_text": [],
+          "unexpected_added_text": [],
+          "intentional_changes_allowed": true
+        },
+        "style_and_numbering_preservation": {
+          "passed": true,
+          "styles": {
+            "original": "3c1b01bb57f24f072f9de9d9eade60f05fc530156dca522920c421e68bdaa301",
+            "generated": "3c1b01bb57f24f072f9de9d9eade60f05fc530156dca522920c421e68bdaa301",
+            "preserved": true
+          },
+          "numbering": {
+            "original": null,
+            "generated": null,
+            "preserved": true
+          }
+        },
+        "visual_differences": {
+          "performed": false,
+          "passed": null,
+          "mode": null,
+          "page_count_match": null,
+          "unexpected_changed_pages": [],
+          "report": null
+        },
+        "unsupported_ooxml_structures": [
+          "drawing",
+          "legacy_drawing"
+        ]
+      },
+      "modified_visual_unexpected_pages": [
+        1
+      ]
+    },
+    {
+      "id": "20f19545a1bd",
+      "filename": "plutext_docx4j-python__Headers.docx",
+      "source": "plutext_docx4j-python",
+      "relative_path": "plutext_docx4j-python__Headers.docx",
+      "file_size": 93161,
+      "source_sha256": "7bdaf60ef968ea43882309b48677229c7d194394ee032633a2252c3f4f8536f2",
+      "paragraph_count": 26,
+      "table_count": 0,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "text_edit_status": "pass",
+      "text_edit_target": {
+        "id": "body.p0",
+        "original": "Header and footer test",
+        "replacement": "Header and footer test [DocXUnravel compatibility edit]"
+      },
+      "modified_visual_status": "differences_detected",
+      "modified_visual_max_difference_ratio": 0.00714633,
+      "modified_visual_page_ratios": [
+        0.00714633,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "unsupported_features": [
+        "bookmark",
+        "drawing",
+        "endnotes",
+        "footnotes",
+        "line_or_page_break",
+        "tab"
+      ],
+      "warnings": [],
+      "errors": [],
+      "failure_classification": null,
+      "failure_artifacts": null,
+      "timings_seconds": {
+        "extract_and_profile": 0.0138,
+        "noop_reconstruction": 0.0048,
+        "noop_visual": 2.0456,
+        "text_edit": 0.034,
+        "modified_visual": 2.0862
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 22,
+        "xml_part_count": 20,
+        "relationship_count": 19,
+        "total_uncompressed_size": 148457,
+        "highest_compression_ratio": 9.157,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      },
+      "text_edit_fidelity": {
+        "schema_version": "1.0",
+        "mode": "patch",
+        "passed": true,
+        "package_integrity": {
+          "passed": true,
+          "original": {
+            "valid": true,
+            "entry_count": 22,
+            "xml_part_count": 20,
+            "relationship_count": 19,
+            "total_uncompressed_size": 148457,
+            "highest_compression_ratio": 7.528,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          },
+          "generated": {
+            "valid": true,
+            "entry_count": 22,
+            "xml_part_count": 20,
+            "relationship_count": 19,
+            "total_uncompressed_size": 148488,
+            "highest_compression_ratio": 9.157,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          }
+        },
+        "untouched_part_hash_preservation": {
+          "passed": true,
+          "expected_modified_parts": [
+            "word/document.xml"
+          ],
+          "changed_parts": [
+            "word/document.xml"
+          ],
+          "unexpected_changed_parts": [],
+          "missing_parts": [],
+          "added_parts": [],
+          "untouched_count": 21,
+          "preserved_count": 21
+        },
+        "semantic_text_preservation": {
+          "passed": true,
+          "exact_match": false,
+          "matches_expected_patch": true,
+          "original_paragraph_count": 26,
+          "generated_paragraph_count": 26,
+          "original_text_sha256": "8c1fb195805a480936042af561e5ffa308c63f3d8c5b2a8a65d03c3523da95ee",
+          "generated_text_sha256": "ccebdd5b2d7afac0895a760bd4b197e5a0f00ac50445a23a3ad6212195dd3256",
+          "expected_text_sha256": "ccebdd5b2d7afac0895a760bd4b197e5a0f00ac50445a23a3ad6212195dd3256",
+          "unexpected_removed_text": [],
+          "unexpected_added_text": [],
+          "intentional_changes_allowed": true
+        },
+        "style_and_numbering_preservation": {
+          "passed": true,
+          "styles": {
+            "original": "5657ac8bace6fd3e4bcd266f46b415e2c9d325cff9c4f50055fdd365edfd58ac",
+            "generated": "5657ac8bace6fd3e4bcd266f46b415e2c9d325cff9c4f50055fdd365edfd58ac",
+            "preserved": true
+          },
+          "numbering": {
+            "original": null,
+            "generated": null,
+            "preserved": true
+          }
+        },
+        "visual_differences": {
+          "performed": false,
+          "passed": null,
+          "mode": null,
+          "page_count_match": null,
+          "unexpected_changed_pages": [],
+          "report": null
+        },
+        "unsupported_ooxml_structures": [
+          "drawing",
+          "line_or_page_break"
+        ]
+      },
+      "modified_visual_unexpected_pages": [
+        1
+      ]
+    },
+    {
+      "id": "f2a0e7911794",
+      "filename": "plutext_docx4j-python__Images.docx",
+      "source": "plutext_docx4j-python",
+      "relative_path": "plutext_docx4j-python__Images.docx",
+      "file_size": 185779,
+      "source_sha256": "612570a1ef38d8bdebbfda2c38498a9b904374e7e8fa324eb116861dc0ba8ea7",
+      "paragraph_count": 3,
+      "table_count": 0,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0
+      ],
+      "text_edit_status": "unsupported",
+      "text_edit_target": null,
+      "modified_visual_status": "not_run",
+      "modified_visual_max_difference_ratio": null,
+      "modified_visual_page_ratios": [],
+      "unsupported_features": [
+        "custom_xml",
+        "drawing"
+      ],
+      "warnings": [
+        {
+          "code": "NO_SAFE_EDIT_TARGET",
+          "message": "No plain, non-revision, single-format body paragraph was available."
+        }
+      ],
+      "errors": [],
+      "failure_classification": "unsupported_no_safe_paragraph",
+      "failure_artifacts": ".compatibility-run/f2a0e7911794",
+      "timings_seconds": {
+        "extract_and_profile": 0.0055,
+        "noop_reconstruction": 0.0033,
+        "noop_visual": 1.8809
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 16,
+        "xml_part_count": 14,
+        "relationship_count": 12,
+        "total_uncompressed_size": 207984,
+        "highest_compression_ratio": 9.817,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      }
+    },
+    {
+      "id": "2e1cb34ab21e",
+      "filename": "plutext_docx4j-python__Symbols.docx",
+      "source": "plutext_docx4j-python",
+      "relative_path": "plutext_docx4j-python__Symbols.docx",
+      "file_size": 76840,
+      "source_sha256": "1e671e24826e833afb446ef2be4d21051fd36b91f8d0cdbf9ff149db305c0da1",
+      "paragraph_count": 160,
+      "table_count": 0,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "text_edit_status": "pass",
+      "text_edit_target": {
+        "id": "body.p0",
+        "original": "Symbols",
+        "replacement": "Symbols [DocXUnravel compatibility edit]"
+      },
+      "modified_visual_status": "differences_detected",
+      "modified_visual_max_difference_ratio": 0.00459817,
+      "modified_visual_page_ratios": [
+        0.00459817,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "unsupported_features": [
+        "bookmark",
+        "line_or_page_break",
+        "soft_hyphen",
+        "tab"
+      ],
+      "warnings": [],
+      "errors": [],
+      "failure_classification": null,
+      "failure_artifacts": null,
+      "timings_seconds": {
+        "extract_and_profile": 1.3553,
+        "noop_reconstruction": 0.0354,
+        "noop_visual": 2.1094,
+        "text_edit": 2.7796,
+        "modified_visual": 2.1316
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 13,
+        "xml_part_count": 12,
+        "relationship_count": 10,
+        "total_uncompressed_size": 1120131,
+        "highest_compression_ratio": 42.027,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      },
+      "text_edit_fidelity": {
+        "schema_version": "1.0",
+        "mode": "patch",
+        "passed": true,
+        "package_integrity": {
+          "passed": true,
+          "original": {
+            "valid": true,
+            "entry_count": 13,
+            "xml_part_count": 12,
+            "relationship_count": 10,
+            "total_uncompressed_size": 1120131,
+            "highest_compression_ratio": 36.152,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          },
+          "generated": {
+            "valid": true,
+            "entry_count": 13,
+            "xml_part_count": 12,
+            "relationship_count": 10,
+            "total_uncompressed_size": 1120162,
+            "highest_compression_ratio": 41.973,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          }
+        },
+        "untouched_part_hash_preservation": {
+          "passed": true,
+          "expected_modified_parts": [
+            "word/document.xml"
+          ],
+          "changed_parts": [
+            "word/document.xml"
+          ],
+          "unexpected_changed_parts": [],
+          "missing_parts": [],
+          "added_parts": [],
+          "untouched_count": 12,
+          "preserved_count": 12
+        },
+        "semantic_text_preservation": {
+          "passed": true,
+          "exact_match": false,
+          "matches_expected_patch": true,
+          "original_paragraph_count": 160,
+          "generated_paragraph_count": 160,
+          "original_text_sha256": "7e7538c6071d6a98443ec2b98aa5b06214785217f64d72684b7d01bcf843d71f",
+          "generated_text_sha256": "4b3fadde25c8194eec988297566c1a344a4a7e30478683279586d3cd0d36acb9",
+          "expected_text_sha256": "4b3fadde25c8194eec988297566c1a344a4a7e30478683279586d3cd0d36acb9",
+          "unexpected_removed_text": [],
+          "unexpected_added_text": [],
+          "intentional_changes_allowed": true
+        },
+        "style_and_numbering_preservation": {
+          "passed": true,
+          "styles": {
+            "original": "40fe04d2cbf46865972914f30016ce8d67440a0259f2c4d0ee2eb8402d1e2e9c",
+            "generated": "40fe04d2cbf46865972914f30016ce8d67440a0259f2c4d0ee2eb8402d1e2e9c",
+            "preserved": true
+          },
+          "numbering": {
+            "original": null,
+            "generated": null,
+            "preserved": true
+          }
+        },
+        "visual_differences": {
+          "performed": false,
+          "passed": null,
+          "mode": null,
+          "page_count_match": null,
+          "unexpected_changed_pages": [],
+          "report": null
+        },
+        "unsupported_ooxml_structures": [
+          "line_or_page_break",
+          "soft_hyphen",
+          "tab"
+        ]
+      },
+      "modified_visual_unexpected_pages": [
+        1
+      ]
+    },
+    {
+      "id": "727d26b22555",
+      "filename": "plutext_docx4j-python__invoice2013.docx",
+      "source": "plutext_docx4j-python",
+      "relative_path": "plutext_docx4j-python__invoice2013.docx",
+      "file_size": 49797,
+      "source_sha256": "7db84f21ed07484ce9fa95d795f78fdb6d1d60537832d1c5bd9e53d98fff6f32",
+      "paragraph_count": null,
+      "table_count": null,
+      "extraction_status": "fail",
+      "profiling_status": "fail",
+      "noop_reconstruction_status": "not_run",
+      "package_integrity_status": "not_run",
+      "noop_visual_status": "not_run",
+      "noop_visual_max_difference_ratio": null,
+      "noop_visual_page_ratios": [],
+      "text_edit_status": "not_run",
+      "text_edit_target": null,
+      "modified_visual_status": "not_run",
+      "modified_visual_max_difference_ratio": null,
+      "modified_visual_page_ratios": [],
+      "unsupported_features": [],
+      "warnings": [],
+      "errors": [
+        {
+          "stage": "extract_and_profile",
+          "type": "InvalidXmlError",
+          "message": "required ``<w:tblGrid>`` child element not present"
+        }
+      ],
+      "failure_classification": "unsupported_or_malformed_source",
+      "failure_artifacts": ".compatibility-run/727d26b22555",
+      "timings_seconds": {}
+    },
+    {
+      "id": "3411d6535d35",
+      "filename": "plutext_docx4j-python__sample-docx.docx",
+      "source": "plutext_docx4j-python",
+      "relative_path": "plutext_docx4j-python__sample-docx.docx",
+      "file_size": 142893,
+      "source_sha256": "f527fe32f4bf9e152d86a8e7f1971033e7404929c624e3bdc26853c6a0cfa25e",
+      "paragraph_count": 77,
+      "table_count": 1,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "text_edit_status": "pass",
+      "text_edit_target": {
+        "id": "body.p0",
+        "original": "Docx sample document",
+        "replacement": "Docx sample document [DocXUnravel compatibility edit]"
+      },
+      "modified_visual_status": "differences_detected",
+      "modified_visual_max_difference_ratio": 0.113572,
+      "modified_visual_page_ratios": [
+        0.08796676,
+        0.113572,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "unsupported_features": [
+        "bookmark",
+        "drawing",
+        "endnotes",
+        "footnotes",
+        "hyperlink",
+        "line_or_page_break",
+        "tab",
+        "tracked_deletion",
+        "tracked_insertion"
+      ],
+      "warnings": [],
+      "errors": [],
+      "failure_classification": null,
+      "failure_artifacts": null,
+      "timings_seconds": {
+        "extract_and_profile": 0.036,
+        "noop_reconstruction": 0.0061,
+        "noop_visual": 2.3352,
+        "text_edit": 0.0796,
+        "modified_visual": 2.3285
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 19,
+        "xml_part_count": 16,
+        "relationship_count": 17,
+        "total_uncompressed_size": 209451,
+        "highest_compression_ratio": 9.201,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      },
+      "text_edit_fidelity": {
+        "schema_version": "1.0",
+        "mode": "patch",
+        "passed": true,
+        "package_integrity": {
+          "passed": true,
+          "original": {
+            "valid": true,
+            "entry_count": 19,
+            "xml_part_count": 16,
+            "relationship_count": 17,
+            "total_uncompressed_size": 209451,
+            "highest_compression_ratio": 7.47,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          },
+          "generated": {
+            "valid": true,
+            "entry_count": 19,
+            "xml_part_count": 16,
+            "relationship_count": 17,
+            "total_uncompressed_size": 209482,
+            "highest_compression_ratio": 9.201,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          }
+        },
+        "untouched_part_hash_preservation": {
+          "passed": true,
+          "expected_modified_parts": [
+            "word/document.xml"
+          ],
+          "changed_parts": [
+            "word/document.xml"
+          ],
+          "unexpected_changed_parts": [],
+          "missing_parts": [],
+          "added_parts": [],
+          "untouched_count": 18,
+          "preserved_count": 18
+        },
+        "semantic_text_preservation": {
+          "passed": true,
+          "exact_match": false,
+          "matches_expected_patch": true,
+          "original_paragraph_count": 77,
+          "generated_paragraph_count": 77,
+          "original_text_sha256": "22cd66754d9750c9f48a76d75357514ea5074db21c94bd141f7c85433c1fd3fc",
+          "generated_text_sha256": "232201f326fb2bca9bb643104bdd6ab1a2fba1bbeb1da871c2c2ab7d0551d3e4",
+          "expected_text_sha256": "232201f326fb2bca9bb643104bdd6ab1a2fba1bbeb1da871c2c2ab7d0551d3e4",
+          "unexpected_removed_text": [],
+          "unexpected_added_text": [],
+          "intentional_changes_allowed": true
+        },
+        "style_and_numbering_preservation": {
+          "passed": true,
+          "styles": {
+            "original": "fa42271790c1b0a509b89e83df764703cfe56db6a49f7da1e441d8b7eaaf1948",
+            "generated": "fa42271790c1b0a509b89e83df764703cfe56db6a49f7da1e441d8b7eaaf1948",
+            "preserved": true
+          },
+          "numbering": {
+            "original": "3f9951dbe40e79edfce67968dab8ca8da093fdaf4280bdf8b61a6408c6b7af9e",
+            "generated": "3f9951dbe40e79edfce67968dab8ca8da093fdaf4280bdf8b61a6408c6b7af9e",
+            "preserved": true
+          }
+        },
+        "visual_differences": {
+          "performed": false,
+          "passed": null,
+          "mode": null,
+          "page_count_match": null,
+          "unexpected_changed_pages": [],
+          "report": null
+        },
+        "unsupported_ooxml_structures": [
+          "drawing",
+          "hyperlink",
+          "line_or_page_break"
+        ]
+      },
+      "modified_visual_unexpected_pages": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "4a2a2c5f1d83",
+      "filename": "plutext_docx4j-python__tables.docx",
+      "source": "plutext_docx4j-python",
+      "relative_path": "plutext_docx4j-python__tables.docx",
+      "file_size": 433587,
+      "source_sha256": "50ea2fd62761aedc66e307c30ca1191a4e6baf8fa9d8d849ba1d9c20eb5921f4",
+      "paragraph_count": 262,
+      "table_count": 13,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "text_edit_status": "pass",
+      "text_edit_target": {
+        "id": "body.p0",
+        "original": "Shadings, alignment, row height",
+        "replacement": "Shadings, alignment, row height [DocXUnravel compatibility edit]"
+      },
+      "modified_visual_status": "differences_detected",
+      "modified_visual_max_difference_ratio": 0.00131728,
+      "modified_visual_page_ratios": [
+        0.00131728,
+        0.0,
+        0.0
+      ],
+      "unsupported_features": [
+        "bookmark",
+        "custom_xml",
+        "drawing",
+        "tab"
+      ],
+      "warnings": [],
+      "errors": [],
+      "failure_classification": null,
+      "failure_artifacts": null,
+      "timings_seconds": {
+        "extract_and_profile": 0.114,
+        "noop_reconstruction": 0.0371,
+        "noop_visual": 2.038,
+        "text_edit": 0.2698,
+        "modified_visual": 2.0416
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 17,
+        "xml_part_count": 15,
+        "relationship_count": 14,
+        "total_uncompressed_size": 7505154,
+        "highest_compression_ratio": 41.242,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      },
+      "text_edit_fidelity": {
+        "schema_version": "1.0",
+        "mode": "patch",
+        "passed": true,
+        "package_integrity": {
+          "passed": true,
+          "original": {
+            "valid": true,
+            "entry_count": 17,
+            "xml_part_count": 15,
+            "relationship_count": 14,
+            "total_uncompressed_size": 7505154,
+            "highest_compression_ratio": 23.478,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          },
+          "generated": {
+            "valid": true,
+            "entry_count": 17,
+            "xml_part_count": 15,
+            "relationship_count": 14,
+            "total_uncompressed_size": 7505185,
+            "highest_compression_ratio": 41.242,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          }
+        },
+        "untouched_part_hash_preservation": {
+          "passed": true,
+          "expected_modified_parts": [
+            "word/document.xml"
+          ],
+          "changed_parts": [
+            "word/document.xml"
+          ],
+          "unexpected_changed_parts": [],
+          "missing_parts": [],
+          "added_parts": [],
+          "untouched_count": 16,
+          "preserved_count": 16
+        },
+        "semantic_text_preservation": {
+          "passed": true,
+          "exact_match": false,
+          "matches_expected_patch": true,
+          "original_paragraph_count": 262,
+          "generated_paragraph_count": 262,
+          "original_text_sha256": "d5792ccd91191f207da8e34faee296e2a0f3c4874009bafe6a20bd3b4783578b",
+          "generated_text_sha256": "4b55aa691386d27ad76ae22308cabf31e5424c39c738486d2c887835553f0948",
+          "expected_text_sha256": "4b55aa691386d27ad76ae22308cabf31e5424c39c738486d2c887835553f0948",
+          "unexpected_removed_text": [],
+          "unexpected_added_text": [],
+          "intentional_changes_allowed": true
+        },
+        "style_and_numbering_preservation": {
+          "passed": true,
+          "styles": {
+            "original": "19fdb6a6c23cd714733c9bfdd3357861a28dba526ef4d31bcf6628892247037b",
+            "generated": "19fdb6a6c23cd714733c9bfdd3357861a28dba526ef4d31bcf6628892247037b",
+            "preserved": true
+          },
+          "numbering": {
+            "original": null,
+            "generated": null,
+            "preserved": true
+          }
+        },
+        "visual_differences": {
+          "performed": false,
+          "passed": null,
+          "mode": null,
+          "page_count_match": null,
+          "unexpected_changed_pages": [],
+          "report": null
+        },
+        "unsupported_ooxml_structures": [
+          "drawing"
+        ]
+      },
+      "modified_visual_unexpected_pages": [
+        1
+      ]
+    },
+    {
+      "id": "067a411fb00b",
+      "filename": "plutext_docx4j-python__toc.docx",
+      "source": "plutext_docx4j-python",
+      "relative_path": "plutext_docx4j-python__toc.docx",
+      "file_size": 34793,
+      "source_sha256": "f1c2bab7ac6eb58e38e1ae4245d31fd306f75bc319c118385a11b8abbdfe8a49",
+      "paragraph_count": 51,
+      "table_count": 0,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "text_edit_status": "pass",
+      "text_edit_target": {
+        "id": "body.p0",
+        "original": "United Nations Declaration on the Elimination of All Forms of Racial Discrimination",
+        "replacement": "United Nations Declaration on the Elimination of All Forms of Racial Discrimination [DocXUnravel compatibility edit]"
+      },
+      "modified_visual_status": "differences_detected",
+      "modified_visual_max_difference_ratio": 0.17787105,
+      "modified_visual_page_ratios": [
+        0.11211362,
+        0.17787105,
+        0.1379507,
+        0.15289553
+      ],
+      "unsupported_features": [
+        "bookmark",
+        "content_control",
+        "custom_xml",
+        "endnotes",
+        "field",
+        "field_instruction",
+        "footnotes",
+        "hyperlink",
+        "line_or_page_break",
+        "tab"
+      ],
+      "warnings": [],
+      "errors": [],
+      "failure_classification": null,
+      "failure_artifacts": null,
+      "timings_seconds": {
+        "extract_and_profile": 0.0372,
+        "noop_reconstruction": 0.0064,
+        "noop_visual": 1.9709,
+        "text_edit": 0.081,
+        "modified_visual": 2.0279
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 20,
+        "xml_part_count": 19,
+        "relationship_count": 16,
+        "total_uncompressed_size": 168321,
+        "highest_compression_ratio": 9.711,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      },
+      "text_edit_fidelity": {
+        "schema_version": "1.0",
+        "mode": "patch",
+        "passed": true,
+        "package_integrity": {
+          "passed": true,
+          "original": {
+            "valid": true,
+            "entry_count": 20,
+            "xml_part_count": 19,
+            "relationship_count": 16,
+            "total_uncompressed_size": 168321,
+            "highest_compression_ratio": 9.711,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          },
+          "generated": {
+            "valid": true,
+            "entry_count": 20,
+            "xml_part_count": 19,
+            "relationship_count": 16,
+            "total_uncompressed_size": 166906,
+            "highest_compression_ratio": 9.395,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          }
+        },
+        "untouched_part_hash_preservation": {
+          "passed": true,
+          "expected_modified_parts": [
+            "word/document.xml"
+          ],
+          "changed_parts": [
+            "word/document.xml"
+          ],
+          "unexpected_changed_parts": [],
+          "missing_parts": [],
+          "added_parts": [],
+          "untouched_count": 19,
+          "preserved_count": 19
+        },
+        "semantic_text_preservation": {
+          "passed": true,
+          "exact_match": false,
+          "matches_expected_patch": true,
+          "original_paragraph_count": 51,
+          "generated_paragraph_count": 51,
+          "original_text_sha256": "a7c34ac0b2ec8232c3739af2da92ae407a956f323794a80549e6c4544af698c9",
+          "generated_text_sha256": "d63726bfd0b4da7eaf16bcb74346e756e74e5be2ddeedacb6c9c08a36d4fb8d8",
+          "expected_text_sha256": "d63726bfd0b4da7eaf16bcb74346e756e74e5be2ddeedacb6c9c08a36d4fb8d8",
+          "unexpected_removed_text": [],
+          "unexpected_added_text": [],
+          "intentional_changes_allowed": true
+        },
+        "style_and_numbering_preservation": {
+          "passed": true,
+          "styles": {
+            "original": "7302f5a30f18e8fca39e81f5a208d11ec47483dc3c7e078e4c7e19e62805d99b",
+            "generated": "7302f5a30f18e8fca39e81f5a208d11ec47483dc3c7e078e4c7e19e62805d99b",
+            "preserved": true
+          },
+          "numbering": {
+            "original": null,
+            "generated": null,
+            "preserved": true
+          }
+        },
+        "visual_differences": {
+          "performed": false,
+          "passed": null,
+          "mode": null,
+          "page_count_match": null,
+          "unexpected_changed_pages": [],
+          "report": null
+        },
+        "unsupported_ooxml_structures": [
+          "field",
+          "field_instruction",
+          "line_or_page_break"
+        ]
+      },
+      "modified_visual_unexpected_pages": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    {
+      "id": "ec8eff5a0d4a",
+      "filename": "plutext_docx4j-python__w14_texteffects.docx",
+      "source": "plutext_docx4j-python",
+      "relative_path": "plutext_docx4j-python__w14_texteffects.docx",
+      "file_size": 20348,
+      "source_sha256": "61892c44d892a47dcb893338c3cfd3a651d9a8426497fe2768bd4e4f63379c04",
+      "paragraph_count": 1,
+      "table_count": 0,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0
+      ],
+      "text_edit_status": "pass",
+      "text_edit_target": {
+        "id": "body.p0",
+        "original": "Testing",
+        "replacement": "Testing [DocXUnravel compatibility edit]"
+      },
+      "modified_visual_status": "differences_detected",
+      "modified_visual_max_difference_ratio": 0.0013044,
+      "modified_visual_page_ratios": [
+        0.0013044
+      ],
+      "unsupported_features": [
+        "bookmark"
+      ],
+      "warnings": [],
+      "errors": [],
+      "failure_classification": null,
+      "failure_artifacts": null,
+      "timings_seconds": {
+        "extract_and_profile": 0.0045,
+        "noop_reconstruction": 0.0034,
+        "noop_visual": 1.7696,
+        "text_edit": 0.0122,
+        "modified_visual": 1.7659
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 13,
+        "xml_part_count": 12,
+        "relationship_count": 10,
+        "total_uncompressed_size": 96247,
+        "highest_compression_ratio": 9.784,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      },
+      "text_edit_fidelity": {
+        "schema_version": "1.0",
+        "mode": "patch",
+        "passed": true,
+        "package_integrity": {
+          "passed": true,
+          "original": {
+            "valid": true,
+            "entry_count": 13,
+            "xml_part_count": 12,
+            "relationship_count": 10,
+            "total_uncompressed_size": 96247,
+            "highest_compression_ratio": 8.034,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          },
+          "generated": {
+            "valid": true,
+            "entry_count": 13,
+            "xml_part_count": 12,
+            "relationship_count": 10,
+            "total_uncompressed_size": 96163,
+            "highest_compression_ratio": 9.784,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          }
+        },
+        "untouched_part_hash_preservation": {
+          "passed": true,
+          "expected_modified_parts": [
+            "word/document.xml"
+          ],
+          "changed_parts": [
+            "word/document.xml"
+          ],
+          "unexpected_changed_parts": [],
+          "missing_parts": [],
+          "added_parts": [],
+          "untouched_count": 12,
+          "preserved_count": 12
+        },
+        "semantic_text_preservation": {
+          "passed": true,
+          "exact_match": false,
+          "matches_expected_patch": true,
+          "original_paragraph_count": 1,
+          "generated_paragraph_count": 1,
+          "original_text_sha256": "e806a291cfc3e61f83b98d344ee57e3e8933cccece4fb45e1481f1f560e70eb1",
+          "generated_text_sha256": "0b7401b969eaed4d2ca7abf982b683abe95aec65e753738ee60007bc51b391a0",
+          "expected_text_sha256": "0b7401b969eaed4d2ca7abf982b683abe95aec65e753738ee60007bc51b391a0",
+          "unexpected_removed_text": [],
+          "unexpected_added_text": [],
+          "intentional_changes_allowed": true
+        },
+        "style_and_numbering_preservation": {
+          "passed": true,
+          "styles": {
+            "original": "c50e9d9491ae6e630d1f293b9889ad06cbb5caf022dad3f762ec07091b122a66",
+            "generated": "c50e9d9491ae6e630d1f293b9889ad06cbb5caf022dad3f762ec07091b122a66",
+            "preserved": true
+          },
+          "numbering": {
+            "original": null,
+            "generated": null,
+            "preserved": true
+          }
+        },
+        "visual_differences": {
+          "performed": false,
+          "passed": null,
+          "mode": null,
+          "page_count_match": null,
+          "unexpected_changed_pages": [],
+          "report": null
+        },
+        "unsupported_ooxml_structures": []
+      },
+      "modified_visual_unexpected_pages": [
+        1
+      ]
+    },
+    {
+      "id": "320e26008f55",
+      "filename": "portone-io_docx-editor__content-controls.docx",
+      "source": "portone-io_docx-editor",
+      "relative_path": "portone-io_docx-editor__content-controls.docx",
+      "file_size": 6735,
+      "source_sha256": "c7a36fe8b5e807a84976aa341354d13891c843c653f2e25e7c146476cf9530c1",
+      "paragraph_count": 20,
+      "table_count": 4,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0,
+        0.0
+      ],
+      "text_edit_status": "pass",
+      "text_edit_target": {
+        "id": "body.p0",
+        "original": "Block content controls",
+        "replacement": "Block content controls [DocXUnravel compatibility edit]"
+      },
+      "modified_visual_status": "differences_detected",
+      "modified_visual_max_difference_ratio": 0.00186474,
+      "modified_visual_page_ratios": [
+        0.00186474,
+        0.0
+      ],
+      "unsupported_features": [
+        "content_control"
+      ],
+      "warnings": [],
+      "errors": [],
+      "failure_classification": null,
+      "failure_artifacts": null,
+      "timings_seconds": {
+        "extract_and_profile": 0.0075,
+        "noop_reconstruction": 0.0025,
+        "noop_visual": 1.8156,
+        "text_edit": 0.0175,
+        "modified_visual": 1.8556
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 11,
+        "xml_part_count": 11,
+        "relationship_count": 8,
+        "total_uncompressed_size": 21178,
+        "highest_compression_ratio": 5.64,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      },
+      "text_edit_fidelity": {
+        "schema_version": "1.0",
+        "mode": "patch",
+        "passed": true,
+        "package_integrity": {
+          "passed": true,
+          "original": {
+            "valid": true,
+            "entry_count": 11,
+            "xml_part_count": 11,
+            "relationship_count": 8,
+            "total_uncompressed_size": 21178,
+            "highest_compression_ratio": 5.494,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          },
+          "generated": {
+            "valid": true,
+            "entry_count": 11,
+            "xml_part_count": 11,
+            "relationship_count": 8,
+            "total_uncompressed_size": 21138,
+            "highest_compression_ratio": 5.543,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          }
+        },
+        "untouched_part_hash_preservation": {
+          "passed": true,
+          "expected_modified_parts": [
+            "word/document.xml"
+          ],
+          "changed_parts": [
+            "word/document.xml"
+          ],
+          "unexpected_changed_parts": [],
+          "missing_parts": [],
+          "added_parts": [],
+          "untouched_count": 10,
+          "preserved_count": 10
+        },
+        "semantic_text_preservation": {
+          "passed": true,
+          "exact_match": false,
+          "matches_expected_patch": true,
+          "original_paragraph_count": 20,
+          "generated_paragraph_count": 20,
+          "original_text_sha256": "650c05bb5e1433aee6644b3f4ac6a2b25305be692c0a47c72ca2879fa0f22fce",
+          "generated_text_sha256": "9c0b5bb5b5267c3b3d290d3645ee671f76ef87338789998ddec99d91382259bc",
+          "expected_text_sha256": "9c0b5bb5b5267c3b3d290d3645ee671f76ef87338789998ddec99d91382259bc",
+          "unexpected_removed_text": [],
+          "unexpected_added_text": [],
+          "intentional_changes_allowed": true
+        },
+        "style_and_numbering_preservation": {
+          "passed": true,
+          "styles": {
+            "original": "4f44038aa7c4b1ff4b191e908f270c3afedeb05d38d2d273b96eca457846bdab",
+            "generated": "4f44038aa7c4b1ff4b191e908f270c3afedeb05d38d2d273b96eca457846bdab",
+            "preserved": true
+          },
+          "numbering": {
+            "original": "ce1accef6ac789924b1e6bedb9e4b1e44afb8dafa3eac6957af1364bfd945443",
+            "generated": "ce1accef6ac789924b1e6bedb9e4b1e44afb8dafa3eac6957af1364bfd945443",
+            "preserved": true
+          }
+        },
+        "visual_differences": {
+          "performed": false,
+          "passed": null,
+          "mode": null,
+          "page_count_match": null,
+          "unexpected_changed_pages": [],
+          "report": null
+        },
+        "unsupported_ooxml_structures": [
+          "content_control"
+        ]
+      },
+      "modified_visual_unexpected_pages": [
+        1
+      ]
+    },
+    {
+      "id": "bf575dde01f8",
+      "filename": "portone-io_docx-editor__demo.docx",
+      "source": "portone-io_docx-editor",
+      "relative_path": "portone-io_docx-editor__demo.docx",
+      "file_size": 12827,
+      "source_sha256": "58edc3da5e52f69233029d804b771495f28f3589ae8ff480c22df213666f1a88",
+      "paragraph_count": 118,
+      "table_count": 2,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "text_edit_status": "pass",
+      "text_edit_target": {
+        "id": "body.p0",
+        "original": "Editor capability summary",
+        "replacement": "Editor capability summary [DocXUnravel compatibility edit]"
+      },
+      "modified_visual_status": "differences_detected",
+      "modified_visual_max_difference_ratio": 0.12081406,
+      "modified_visual_page_ratios": [
+        0.12081406,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "unsupported_features": [
+        "bookmark",
+        "comment_reference",
+        "comments",
+        "content_control",
+        "drawing",
+        "endnotes",
+        "footnotes",
+        "hyperlink",
+        "line_or_page_break",
+        "tab"
+      ],
+      "warnings": [],
+      "errors": [],
+      "failure_classification": null,
+      "failure_artifacts": null,
+      "timings_seconds": {
+        "extract_and_profile": 0.0423,
+        "noop_reconstruction": 0.0051,
+        "noop_visual": 2.0667,
+        "text_edit": 0.0895,
+        "modified_visual": 2.0784
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 16,
+        "xml_part_count": 15,
+        "relationship_count": 14,
+        "total_uncompressed_size": 56404,
+        "highest_compression_ratio": 7.001,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      },
+      "text_edit_fidelity": {
+        "schema_version": "1.0",
+        "mode": "patch",
+        "passed": true,
+        "package_integrity": {
+          "passed": true,
+          "original": {
+            "valid": true,
+            "entry_count": 16,
+            "xml_part_count": 15,
+            "relationship_count": 14,
+            "total_uncompressed_size": 56404,
+            "highest_compression_ratio": 6.792,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          },
+          "generated": {
+            "valid": true,
+            "entry_count": 16,
+            "xml_part_count": 15,
+            "relationship_count": 14,
+            "total_uncompressed_size": 56416,
+            "highest_compression_ratio": 6.965,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          }
+        },
+        "untouched_part_hash_preservation": {
+          "passed": true,
+          "expected_modified_parts": [
+            "word/document.xml"
+          ],
+          "changed_parts": [
+            "word/document.xml"
+          ],
+          "unexpected_changed_parts": [],
+          "missing_parts": [],
+          "added_parts": [],
+          "untouched_count": 15,
+          "preserved_count": 15
+        },
+        "semantic_text_preservation": {
+          "passed": true,
+          "exact_match": false,
+          "matches_expected_patch": true,
+          "original_paragraph_count": 118,
+          "generated_paragraph_count": 118,
+          "original_text_sha256": "33f319a65332cddbd2ccc1143fd1f88a61bbda08b2f36d61d078025b3b7162fa",
+          "generated_text_sha256": "2f2e8a30ea71eb5c041087ebde695c44906e6ebed82d420b09f3eadb96ea1d4f",
+          "expected_text_sha256": "2f2e8a30ea71eb5c041087ebde695c44906e6ebed82d420b09f3eadb96ea1d4f",
+          "unexpected_removed_text": [],
+          "unexpected_added_text": [],
+          "intentional_changes_allowed": true
+        },
+        "style_and_numbering_preservation": {
+          "passed": true,
+          "styles": {
+            "original": "ab1ef40cf719e7b270c903fa8e44d6e679a2f9f83217f008cbc57e94148fd241",
+            "generated": "ab1ef40cf719e7b270c903fa8e44d6e679a2f9f83217f008cbc57e94148fd241",
+            "preserved": true
+          },
+          "numbering": {
+            "original": "ed18829995d8044a2914311189389ccc8bded41376954dd88e3b327514472075",
+            "generated": "ed18829995d8044a2914311189389ccc8bded41376954dd88e3b327514472075",
+            "preserved": true
+          }
+        },
+        "visual_differences": {
+          "performed": false,
+          "passed": null,
+          "mode": null,
+          "page_count_match": null,
+          "unexpected_changed_pages": [],
+          "report": null
+        },
+        "unsupported_ooxml_structures": [
+          "content_control",
+          "drawing",
+          "hyperlink",
+          "line_or_page_break",
+          "tab"
+        ]
+      },
+      "modified_visual_unexpected_pages": [
+        1
+      ]
+    },
+    {
+      "id": "d5bc7f4dac7d",
+      "filename": "portone-io_docx-editor__east-asian.docx",
+      "source": "portone-io_docx-editor",
+      "relative_path": "portone-io_docx-editor__east-asian.docx",
+      "file_size": 6948,
+      "source_sha256": "8cfe14ad5201aa5871c06fb04583088f4eba1bfdd6f4175dacdbf21e9c310c5a",
+      "paragraph_count": 25,
+      "table_count": 1,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0
+      ],
+      "text_edit_status": "pass",
+      "text_edit_target": {
+        "id": "body.p0",
+        "original": "Three Reading Passages",
+        "replacement": "Three Reading Passages [DocXUnravel compatibility edit]"
+      },
+      "modified_visual_status": "differences_detected",
+      "modified_visual_max_difference_ratio": 0.0048897,
+      "modified_visual_page_ratios": [
+        0.0048897
+      ],
+      "unsupported_features": [],
+      "warnings": [],
+      "errors": [],
+      "failure_classification": null,
+      "failure_artifacts": null,
+      "timings_seconds": {
+        "extract_and_profile": 0.0102,
+        "noop_reconstruction": 0.0027,
+        "noop_visual": 1.8106,
+        "text_edit": 0.0227,
+        "modified_visual": 1.8293
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 11,
+        "xml_part_count": 11,
+        "relationship_count": 8,
+        "total_uncompressed_size": 24991,
+        "highest_compression_ratio": 6.769,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      },
+      "text_edit_fidelity": {
+        "schema_version": "1.0",
+        "mode": "patch",
+        "passed": true,
+        "package_integrity": {
+          "passed": true,
+          "original": {
+            "valid": true,
+            "entry_count": 11,
+            "xml_part_count": 11,
+            "relationship_count": 8,
+            "total_uncompressed_size": 24991,
+            "highest_compression_ratio": 6.698,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          },
+          "generated": {
+            "valid": true,
+            "entry_count": 11,
+            "xml_part_count": 11,
+            "relationship_count": 8,
+            "total_uncompressed_size": 25003,
+            "highest_compression_ratio": 6.689,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          }
+        },
+        "untouched_part_hash_preservation": {
+          "passed": true,
+          "expected_modified_parts": [
+            "word/document.xml"
+          ],
+          "changed_parts": [
+            "word/document.xml"
+          ],
+          "unexpected_changed_parts": [],
+          "missing_parts": [],
+          "added_parts": [],
+          "untouched_count": 10,
+          "preserved_count": 10
+        },
+        "semantic_text_preservation": {
+          "passed": true,
+          "exact_match": false,
+          "matches_expected_patch": true,
+          "original_paragraph_count": 25,
+          "generated_paragraph_count": 25,
+          "original_text_sha256": "aa7546cc115ef0447a20dc291529e7cd65fb89f41310902068f8bfa0c1994fd8",
+          "generated_text_sha256": "09ffed7e80bdac78ff20b701d620f015028f1ec635ef7fa8c359d931f6076993",
+          "expected_text_sha256": "09ffed7e80bdac78ff20b701d620f015028f1ec635ef7fa8c359d931f6076993",
+          "unexpected_removed_text": [],
+          "unexpected_added_text": [],
+          "intentional_changes_allowed": true
+        },
+        "style_and_numbering_preservation": {
+          "passed": true,
+          "styles": {
+            "original": "79599eb3de621f2e53be9abeb81b9e111ccb54396c4424c4efb0aaa2d2b163b0",
+            "generated": "79599eb3de621f2e53be9abeb81b9e111ccb54396c4424c4efb0aaa2d2b163b0",
+            "preserved": true
+          },
+          "numbering": {
+            "original": "ce1accef6ac789924b1e6bedb9e4b1e44afb8dafa3eac6957af1364bfd945443",
+            "generated": "ce1accef6ac789924b1e6bedb9e4b1e44afb8dafa3eac6957af1364bfd945443",
+            "preserved": true
+          }
+        },
+        "visual_differences": {
+          "performed": false,
+          "passed": null,
+          "mode": null,
+          "page_count_match": null,
+          "unexpected_changed_pages": [],
+          "report": null
+        },
+        "unsupported_ooxml_structures": []
+      },
+      "modified_visual_unexpected_pages": [
+        1
+      ]
+    },
+    {
+      "id": "749dd825a2c6",
+      "filename": "portone-io_docx-editor__google-docs-export.docx",
+      "source": "portone-io_docx-editor",
+      "relative_path": "portone-io_docx-editor__google-docs-export.docx",
+      "file_size": 17433,
+      "source_sha256": "e975d3f44427dcd851bce12dbf59e9748848479668d27d68461502cfeb3816c0",
+      "paragraph_count": 84,
+      "table_count": 2,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "text_edit_status": "pass",
+      "text_edit_target": {
+        "id": "body.p0",
+        "original": "Producer lane fixture",
+        "replacement": "Producer lane fixture [DocXUnravel compatibility edit]"
+      },
+      "modified_visual_status": "differences_detected",
+      "modified_visual_max_difference_ratio": 0.19554966,
+      "modified_visual_page_ratios": [
+        0.19554966,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "unsupported_features": [
+        "bookmark",
+        "comment_reference",
+        "comments",
+        "drawing",
+        "field",
+        "field_instruction",
+        "footnotes",
+        "hyperlink",
+        "line_or_page_break",
+        "tracked_insertion"
+      ],
+      "warnings": [],
+      "errors": [],
+      "failure_classification": null,
+      "failure_artifacts": null,
+      "timings_seconds": {
+        "extract_and_profile": 0.0503,
+        "noop_reconstruction": 0.0061,
+        "noop_visual": 2.0393,
+        "text_edit": 0.1083,
+        "modified_visual": 2.0558
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 14,
+        "xml_part_count": 13,
+        "relationship_count": 12,
+        "total_uncompressed_size": 113928,
+        "highest_compression_ratio": 10.646,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      },
+      "text_edit_fidelity": {
+        "schema_version": "1.0",
+        "mode": "patch",
+        "passed": true,
+        "package_integrity": {
+          "passed": true,
+          "original": {
+            "valid": true,
+            "entry_count": 14,
+            "xml_part_count": 13,
+            "relationship_count": 12,
+            "total_uncompressed_size": 113928,
+            "highest_compression_ratio": 10.214,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          },
+          "generated": {
+            "valid": true,
+            "entry_count": 14,
+            "xml_part_count": 13,
+            "relationship_count": 12,
+            "total_uncompressed_size": 113939,
+            "highest_compression_ratio": 10.614,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          }
+        },
+        "untouched_part_hash_preservation": {
+          "passed": true,
+          "expected_modified_parts": [
+            "word/document.xml"
+          ],
+          "changed_parts": [
+            "word/document.xml"
+          ],
+          "unexpected_changed_parts": [],
+          "missing_parts": [],
+          "added_parts": [],
+          "untouched_count": 13,
+          "preserved_count": 13
+        },
+        "semantic_text_preservation": {
+          "passed": true,
+          "exact_match": false,
+          "matches_expected_patch": true,
+          "original_paragraph_count": 84,
+          "generated_paragraph_count": 84,
+          "original_text_sha256": "c3c28102df3a666a854b77af47e84b9cbf41b6b53850c927f3fba258aed56ece",
+          "generated_text_sha256": "02cea983eeaff9b58276e315952b16795add534277e7c9b5011ae8e4356e9225",
+          "expected_text_sha256": "02cea983eeaff9b58276e315952b16795add534277e7c9b5011ae8e4356e9225",
+          "unexpected_removed_text": [],
+          "unexpected_added_text": [],
+          "intentional_changes_allowed": true
+        },
+        "style_and_numbering_preservation": {
+          "passed": true,
+          "styles": {
+            "original": "5515eb0d7c692f5fa383e832608d2564f696052dc30c92576b7978c094164910",
+            "generated": "5515eb0d7c692f5fa383e832608d2564f696052dc30c92576b7978c094164910",
+            "preserved": true
+          },
+          "numbering": {
+            "original": "195f149b393f5631be7c0567e2e1415dc5ac94ae301b25a8f4fbc26a58b41bf5",
+            "generated": "195f149b393f5631be7c0567e2e1415dc5ac94ae301b25a8f4fbc26a58b41bf5",
+            "preserved": true
+          }
+        },
+        "visual_differences": {
+          "performed": false,
+          "passed": null,
+          "mode": null,
+          "page_count_match": null,
+          "unexpected_changed_pages": [],
+          "report": null
+        },
+        "unsupported_ooxml_structures": [
+          "drawing",
+          "field",
+          "field_instruction",
+          "hyperlink",
+          "line_or_page_break"
+        ]
+      },
+      "modified_visual_unexpected_pages": [
+        1
+      ]
+    },
+    {
+      "id": "9f7731e58fdd",
+      "filename": "portone-io_docx-editor__kitchen-sink.docx",
+      "source": "portone-io_docx-editor",
+      "relative_path": "portone-io_docx-editor__kitchen-sink.docx",
+      "file_size": 9497,
+      "source_sha256": "14e39475fb2f85adcf7ac82e46aac19789f3ea7f66511a72a90dcffa7cd93c4c",
+      "paragraph_count": 54,
+      "table_count": 2,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0,
+        0.0
+      ],
+      "text_edit_status": "pass",
+      "text_edit_target": {
+        "id": "body.p0",
+        "original": "Release Notes",
+        "replacement": "Release Notes [DocXUnravel compatibility edit]"
+      },
+      "modified_visual_status": "differences_detected",
+      "modified_visual_max_difference_ratio": 0.0055638,
+      "modified_visual_page_ratios": [
+        0.0055638,
+        0.0
+      ],
+      "unsupported_features": [
+        "bookmark",
+        "content_control",
+        "drawing",
+        "endnotes",
+        "footnotes",
+        "hyperlink"
+      ],
+      "warnings": [],
+      "errors": [],
+      "failure_classification": null,
+      "failure_artifacts": null,
+      "timings_seconds": {
+        "extract_and_profile": 0.0223,
+        "noop_reconstruction": 0.0035,
+        "noop_visual": 1.8953,
+        "text_edit": 0.0478,
+        "modified_visual": 1.9252
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 15,
+        "xml_part_count": 14,
+        "relationship_count": 13,
+        "total_uncompressed_size": 35695,
+        "highest_compression_ratio": 6.892,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      },
+      "text_edit_fidelity": {
+        "schema_version": "1.0",
+        "mode": "patch",
+        "passed": true,
+        "package_integrity": {
+          "passed": true,
+          "original": {
+            "valid": true,
+            "entry_count": 15,
+            "xml_part_count": 14,
+            "relationship_count": 13,
+            "total_uncompressed_size": 35695,
+            "highest_compression_ratio": 6.681,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          },
+          "generated": {
+            "valid": true,
+            "entry_count": 15,
+            "xml_part_count": 14,
+            "relationship_count": 13,
+            "total_uncompressed_size": 35707,
+            "highest_compression_ratio": 6.892,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          }
+        },
+        "untouched_part_hash_preservation": {
+          "passed": true,
+          "expected_modified_parts": [
+            "word/document.xml"
+          ],
+          "changed_parts": [
+            "word/document.xml"
+          ],
+          "unexpected_changed_parts": [],
+          "missing_parts": [],
+          "added_parts": [],
+          "untouched_count": 14,
+          "preserved_count": 14
+        },
+        "semantic_text_preservation": {
+          "passed": true,
+          "exact_match": false,
+          "matches_expected_patch": true,
+          "original_paragraph_count": 54,
+          "generated_paragraph_count": 54,
+          "original_text_sha256": "01aacb3366da6f12a2c10b2526c39aa37552048a5fcf2b4a659c46406ad18aa1",
+          "generated_text_sha256": "e1d4c560b2613ee3fa07cc2bb763c8a3ea5f596b059744b9831e2f6c90cd7c4d",
+          "expected_text_sha256": "e1d4c560b2613ee3fa07cc2bb763c8a3ea5f596b059744b9831e2f6c90cd7c4d",
+          "unexpected_removed_text": [],
+          "unexpected_added_text": [],
+          "intentional_changes_allowed": true
+        },
+        "style_and_numbering_preservation": {
+          "passed": true,
+          "styles": {
+            "original": "e4b7e692ee144f9b746933184ec909211a5f14b9fd1cd7277c76a76bca73d585",
+            "generated": "e4b7e692ee144f9b746933184ec909211a5f14b9fd1cd7277c76a76bca73d585",
+            "preserved": true
+          },
+          "numbering": {
+            "original": "ed18829995d8044a2914311189389ccc8bded41376954dd88e3b327514472075",
+            "generated": "ed18829995d8044a2914311189389ccc8bded41376954dd88e3b327514472075",
+            "preserved": true
+          }
+        },
+        "visual_differences": {
+          "performed": false,
+          "passed": null,
+          "mode": null,
+          "page_count_match": null,
+          "unexpected_changed_pages": [],
+          "report": null
+        },
+        "unsupported_ooxml_structures": [
+          "content_control",
+          "drawing",
+          "hyperlink"
+        ]
+      },
+      "modified_visual_unexpected_pages": [
+        1
+      ]
+    },
+    {
+      "id": "573fbdc0d98f",
+      "filename": "portone-io_docx-editor__letter-page.docx",
+      "source": "portone-io_docx-editor",
+      "relative_path": "portone-io_docx-editor__letter-page.docx",
+      "file_size": 7995,
+      "source_sha256": "3b78996acd2ec42103aa96124cc55f445d11e53389699d2406e681465c5bf842",
+      "paragraph_count": 101,
+      "table_count": 2,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0,
+        0.0
+      ],
+      "text_edit_status": "pass",
+      "text_edit_target": {
+        "id": "body.p0",
+        "original": "Down the Rabbit-Hole",
+        "replacement": "Down the Rabbit-Hole [DocXUnravel compatibility edit]"
+      },
+      "modified_visual_status": "differences_detected",
+      "modified_visual_max_difference_ratio": 0.00501492,
+      "modified_visual_page_ratios": [
+        0.00501492,
+        0.0
+      ],
+      "unsupported_features": [],
+      "warnings": [],
+      "errors": [],
+      "failure_classification": null,
+      "failure_artifacts": null,
+      "timings_seconds": {
+        "extract_and_profile": 0.0317,
+        "noop_reconstruction": 0.004,
+        "noop_visual": 1.8801,
+        "text_edit": 0.0677,
+        "modified_visual": 1.864
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 10,
+        "xml_part_count": 10,
+        "relationship_count": 7,
+        "total_uncompressed_size": 56780,
+        "highest_compression_ratio": 26.334,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      },
+      "text_edit_fidelity": {
+        "schema_version": "1.0",
+        "mode": "patch",
+        "passed": true,
+        "package_integrity": {
+          "passed": true,
+          "original": {
+            "valid": true,
+            "entry_count": 10,
+            "xml_part_count": 10,
+            "relationship_count": 7,
+            "total_uncompressed_size": 56780,
+            "highest_compression_ratio": 25.187,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          },
+          "generated": {
+            "valid": true,
+            "entry_count": 10,
+            "xml_part_count": 10,
+            "relationship_count": 7,
+            "total_uncompressed_size": 56792,
+            "highest_compression_ratio": 26.334,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          }
+        },
+        "untouched_part_hash_preservation": {
+          "passed": true,
+          "expected_modified_parts": [
+            "word/document.xml"
+          ],
+          "changed_parts": [
+            "word/document.xml"
+          ],
+          "unexpected_changed_parts": [],
+          "missing_parts": [],
+          "added_parts": [],
+          "untouched_count": 9,
+          "preserved_count": 9
+        },
+        "semantic_text_preservation": {
+          "passed": true,
+          "exact_match": false,
+          "matches_expected_patch": true,
+          "original_paragraph_count": 101,
+          "generated_paragraph_count": 101,
+          "original_text_sha256": "b49ae729031651054884f4dad05d9bce8dfd5052730eb0a1f3bed247d692c771",
+          "generated_text_sha256": "7389e8044c4431dd6514cb32a1f5ab71a5d0764e6f8313a85ed9318afbdd3e19",
+          "expected_text_sha256": "7389e8044c4431dd6514cb32a1f5ab71a5d0764e6f8313a85ed9318afbdd3e19",
+          "unexpected_removed_text": [],
+          "unexpected_added_text": [],
+          "intentional_changes_allowed": true
+        },
+        "style_and_numbering_preservation": {
+          "passed": true,
+          "styles": {
+            "original": "c1450116fc7f281f16743153018bf483f9d7eefdbf01a03c933e0658b2cc271f",
+            "generated": "c1450116fc7f281f16743153018bf483f9d7eefdbf01a03c933e0658b2cc271f",
+            "preserved": true
+          },
+          "numbering": {
+            "original": "fc5d4b8b5932e16714774f4cc8a6cbc8fa26a288f3de3e5ef028ef44a316636d",
+            "generated": "fc5d4b8b5932e16714774f4cc8a6cbc8fa26a288f3de3e5ef028ef44a316636d",
+            "preserved": true
+          }
+        },
+        "visual_differences": {
+          "performed": false,
+          "passed": null,
+          "mode": null,
+          "page_count_match": null,
+          "unexpected_changed_pages": [],
+          "report": null
+        },
+        "unsupported_ooxml_structures": []
+      },
+      "modified_visual_unexpected_pages": [
+        1
+      ]
+    },
+    {
+      "id": "541b4c160b66",
+      "filename": "portone-io_docx-editor__list-definitions.docx",
+      "source": "portone-io_docx-editor",
+      "relative_path": "portone-io_docx-editor__list-definitions.docx",
+      "file_size": 5949,
+      "source_sha256": "038c6e5067a06e04998b0a63f7c63e41666cb5c64651fe9f60741558ef537f5d",
+      "paragraph_count": 26,
+      "table_count": 1,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0
+      ],
+      "text_edit_status": "pass",
+      "text_edit_target": {
+        "id": "body.p0",
+        "original": "List definitions",
+        "replacement": "List definitions [DocXUnravel compatibility edit]"
+      },
+      "modified_visual_status": "differences_detected",
+      "modified_visual_max_difference_ratio": 0.00401716,
+      "modified_visual_page_ratios": [
+        0.00401716
+      ],
+      "unsupported_features": [],
+      "warnings": [],
+      "errors": [],
+      "failure_classification": null,
+      "failure_artifacts": null,
+      "timings_seconds": {
+        "extract_and_profile": 0.0105,
+        "noop_reconstruction": 0.0022,
+        "noop_visual": 1.8276,
+        "text_edit": 0.0233,
+        "modified_visual": 1.8202
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 10,
+        "xml_part_count": 10,
+        "relationship_count": 7,
+        "total_uncompressed_size": 18036,
+        "highest_compression_ratio": 5.548,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      },
+      "text_edit_fidelity": {
+        "schema_version": "1.0",
+        "mode": "patch",
+        "passed": true,
+        "package_integrity": {
+          "passed": true,
+          "original": {
+            "valid": true,
+            "entry_count": 10,
+            "xml_part_count": 10,
+            "relationship_count": 7,
+            "total_uncompressed_size": 18036,
+            "highest_compression_ratio": 5.396,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          },
+          "generated": {
+            "valid": true,
+            "entry_count": 10,
+            "xml_part_count": 10,
+            "relationship_count": 7,
+            "total_uncompressed_size": 18048,
+            "highest_compression_ratio": 5.548,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          }
+        },
+        "untouched_part_hash_preservation": {
+          "passed": true,
+          "expected_modified_parts": [
+            "word/document.xml"
+          ],
+          "changed_parts": [
+            "word/document.xml"
+          ],
+          "unexpected_changed_parts": [],
+          "missing_parts": [],
+          "added_parts": [],
+          "untouched_count": 9,
+          "preserved_count": 9
+        },
+        "semantic_text_preservation": {
+          "passed": true,
+          "exact_match": false,
+          "matches_expected_patch": true,
+          "original_paragraph_count": 26,
+          "generated_paragraph_count": 26,
+          "original_text_sha256": "b467275010568a6e4000fb75f7c3c20b8d2df4a2166141f72ae1af98449efacd",
+          "generated_text_sha256": "0fc35bc528da6e592d8ce10a286a560f934653de639b03f6245e9ce3b894e8b6",
+          "expected_text_sha256": "0fc35bc528da6e592d8ce10a286a560f934653de639b03f6245e9ce3b894e8b6",
+          "unexpected_removed_text": [],
+          "unexpected_added_text": [],
+          "intentional_changes_allowed": true
+        },
+        "style_and_numbering_preservation": {
+          "passed": true,
+          "styles": {
+            "original": "1472d3329bd9b0db5904941f69a666f5b9c4925cad096aa557c99d413b720326",
+            "generated": "1472d3329bd9b0db5904941f69a666f5b9c4925cad096aa557c99d413b720326",
+            "preserved": true
+          },
+          "numbering": {
+            "original": "cf188c51abd51cc148d11d3b108a09226679b1e13c7c03bdeb3e17c85c7255b3",
+            "generated": "cf188c51abd51cc148d11d3b108a09226679b1e13c7c03bdeb3e17c85c7255b3",
+            "preserved": true
+          }
+        },
+        "visual_differences": {
+          "performed": false,
+          "passed": null,
+          "mode": null,
+          "page_count_match": null,
+          "unexpected_changed_pages": [],
+          "report": null
+        },
+        "unsupported_ooxml_structures": []
+      },
+      "modified_visual_unexpected_pages": [
+        1
+      ]
+    },
+    {
+      "id": "fd6d71f83a6b",
+      "filename": "portone-io_docx-editor__preserved-markup.docx",
+      "source": "portone-io_docx-editor",
+      "relative_path": "portone-io_docx-editor__preserved-markup.docx",
+      "file_size": 6204,
+      "source_sha256": "8bfbf9f4a01c39365cfc029d263dfa7e4c27c3399d5cb30cbf31eb2fc95c8750",
+      "paragraph_count": 12,
+      "table_count": 2,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0
+      ],
+      "text_edit_status": "pass",
+      "text_edit_target": {
+        "id": "body.p0",
+        "original": "Markup this editor keeps whole",
+        "replacement": "Markup this editor keeps whole [DocXUnravel compatibility edit]"
+      },
+      "modified_visual_status": "differences_detected",
+      "modified_visual_max_difference_ratio": 0.00186873,
+      "modified_visual_page_ratios": [
+        0.00186873
+      ],
+      "unsupported_features": [
+        "bookmark",
+        "carriage_return",
+        "content_control",
+        "field",
+        "field_instruction",
+        "nonbreaking_hyphen",
+        "soft_hyphen",
+        "tracked_deletion",
+        "tracked_insertion"
+      ],
+      "warnings": [],
+      "errors": [],
+      "failure_classification": null,
+      "failure_artifacts": null,
+      "timings_seconds": {
+        "extract_and_profile": 0.0066,
+        "noop_reconstruction": 0.0022,
+        "noop_visual": 1.8084,
+        "text_edit": 0.015,
+        "modified_visual": 1.7785
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 11,
+        "xml_part_count": 11,
+        "relationship_count": 8,
+        "total_uncompressed_size": 15294,
+        "highest_compression_ratio": 3.922,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      },
+      "text_edit_fidelity": {
+        "schema_version": "1.0",
+        "mode": "patch",
+        "passed": true,
+        "package_integrity": {
+          "passed": true,
+          "original": {
+            "valid": true,
+            "entry_count": 11,
+            "xml_part_count": 11,
+            "relationship_count": 8,
+            "total_uncompressed_size": 15294,
+            "highest_compression_ratio": 3.91,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          },
+          "generated": {
+            "valid": true,
+            "entry_count": 11,
+            "xml_part_count": 11,
+            "relationship_count": 8,
+            "total_uncompressed_size": 15306,
+            "highest_compression_ratio": 3.922,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          }
+        },
+        "untouched_part_hash_preservation": {
+          "passed": true,
+          "expected_modified_parts": [
+            "word/document.xml"
+          ],
+          "changed_parts": [
+            "word/document.xml"
+          ],
+          "unexpected_changed_parts": [],
+          "missing_parts": [],
+          "added_parts": [],
+          "untouched_count": 10,
+          "preserved_count": 10
+        },
+        "semantic_text_preservation": {
+          "passed": true,
+          "exact_match": false,
+          "matches_expected_patch": true,
+          "original_paragraph_count": 12,
+          "generated_paragraph_count": 12,
+          "original_text_sha256": "adb3bb6b5885a462a24407025b524e8eda29730d89a05331eed59a9dcb1e6a01",
+          "generated_text_sha256": "81d0bb35d53712180657570d9e91b6ba8bfff865bb454b10046b43a4254dc6e1",
+          "expected_text_sha256": "81d0bb35d53712180657570d9e91b6ba8bfff865bb454b10046b43a4254dc6e1",
+          "unexpected_removed_text": [],
+          "unexpected_added_text": [],
+          "intentional_changes_allowed": true
+        },
+        "style_and_numbering_preservation": {
+          "passed": true,
+          "styles": {
+            "original": "4f44038aa7c4b1ff4b191e908f270c3afedeb05d38d2d273b96eca457846bdab",
+            "generated": "4f44038aa7c4b1ff4b191e908f270c3afedeb05d38d2d273b96eca457846bdab",
+            "preserved": true
+          },
+          "numbering": {
+            "original": "ce1accef6ac789924b1e6bedb9e4b1e44afb8dafa3eac6957af1364bfd945443",
+            "generated": "ce1accef6ac789924b1e6bedb9e4b1e44afb8dafa3eac6957af1364bfd945443",
+            "preserved": true
+          }
+        },
+        "visual_differences": {
+          "performed": false,
+          "passed": null,
+          "mode": null,
+          "page_count_match": null,
+          "unexpected_changed_pages": [],
+          "report": null
+        },
+        "unsupported_ooxml_structures": [
+          "carriage_return",
+          "field",
+          "field_instruction",
+          "nonbreaking_hyphen",
+          "soft_hyphen"
+        ]
+      },
+      "modified_visual_unexpected_pages": [
+        1
+      ]
+    },
+    {
+      "id": "35e74d0efeb3",
+      "filename": "portone-io_docx-editor__sections-and-revisions.docx",
+      "source": "portone-io_docx-editor",
+      "relative_path": "portone-io_docx-editor__sections-and-revisions.docx",
+      "file_size": 5648,
+      "source_sha256": "61f95115b32432d1741827d68a5183b729f60b326d5b16afaf013bfb78fadcd2",
+      "paragraph_count": 12,
+      "table_count": 1,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0,
+        0.0
+      ],
+      "text_edit_status": "pass",
+      "text_edit_target": {
+        "id": "body.p0",
+        "original": "Two sections and a revised table",
+        "replacement": "Two sections and a revised table [DocXUnravel compatibility edit]"
+      },
+      "modified_visual_status": "differences_detected",
+      "modified_visual_max_difference_ratio": 0.01430563,
+      "modified_visual_page_ratios": [
+        0.01430563,
+        0.0
+      ],
+      "unsupported_features": [
+        "bookmark",
+        "content_control"
+      ],
+      "warnings": [],
+      "errors": [],
+      "failure_classification": null,
+      "failure_artifacts": null,
+      "timings_seconds": {
+        "extract_and_profile": 0.0074,
+        "noop_reconstruction": 0.0028,
+        "noop_visual": 1.8045,
+        "text_edit": 0.017,
+        "modified_visual": 1.8118
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 10,
+        "xml_part_count": 10,
+        "relationship_count": 7,
+        "total_uncompressed_size": 32128,
+        "highest_compression_ratio": 26.334,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      },
+      "text_edit_fidelity": {
+        "schema_version": "1.0",
+        "mode": "patch",
+        "passed": true,
+        "package_integrity": {
+          "passed": true,
+          "original": {
+            "valid": true,
+            "entry_count": 10,
+            "xml_part_count": 10,
+            "relationship_count": 7,
+            "total_uncompressed_size": 32128,
+            "highest_compression_ratio": 25.187,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          },
+          "generated": {
+            "valid": true,
+            "entry_count": 10,
+            "xml_part_count": 10,
+            "relationship_count": 7,
+            "total_uncompressed_size": 32140,
+            "highest_compression_ratio": 26.334,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          }
+        },
+        "untouched_part_hash_preservation": {
+          "passed": true,
+          "expected_modified_parts": [
+            "word/document.xml"
+          ],
+          "changed_parts": [
+            "word/document.xml"
+          ],
+          "unexpected_changed_parts": [],
+          "missing_parts": [],
+          "added_parts": [],
+          "untouched_count": 9,
+          "preserved_count": 9
+        },
+        "semantic_text_preservation": {
+          "passed": true,
+          "exact_match": false,
+          "matches_expected_patch": true,
+          "original_paragraph_count": 12,
+          "generated_paragraph_count": 12,
+          "original_text_sha256": "2d282d30c586d551c8b453e6559b17203c9714693ba06a4a67d30fde3e97a02d",
+          "generated_text_sha256": "482f698ea6d11640ab8de8f4f1b1e63773b19c40ee12df5825a7ebedb0446f49",
+          "expected_text_sha256": "482f698ea6d11640ab8de8f4f1b1e63773b19c40ee12df5825a7ebedb0446f49",
+          "unexpected_removed_text": [],
+          "unexpected_added_text": [],
+          "intentional_changes_allowed": true
+        },
+        "style_and_numbering_preservation": {
+          "passed": true,
+          "styles": {
+            "original": "c1450116fc7f281f16743153018bf483f9d7eefdbf01a03c933e0658b2cc271f",
+            "generated": "c1450116fc7f281f16743153018bf483f9d7eefdbf01a03c933e0658b2cc271f",
+            "preserved": true
+          },
+          "numbering": {
+            "original": "fc5d4b8b5932e16714774f4cc8a6cbc8fa26a288f3de3e5ef028ef44a316636d",
+            "generated": "fc5d4b8b5932e16714774f4cc8a6cbc8fa26a288f3de3e5ef028ef44a316636d",
+            "preserved": true
+          }
+        },
+        "visual_differences": {
+          "performed": false,
+          "passed": null,
+          "mode": null,
+          "page_count_match": null,
+          "unexpected_changed_pages": [],
+          "report": null
+        },
+        "unsupported_ooxml_structures": [
+          "content_control"
+        ]
+      },
+      "modified_visual_unexpected_pages": [
+        1
+      ]
+    },
+    {
+      "id": "0a4189c7f60d",
+      "filename": "portone-io_docx-editor__size-fallback.docx",
+      "source": "portone-io_docx-editor",
+      "relative_path": "portone-io_docx-editor__size-fallback.docx",
+      "file_size": 8009,
+      "source_sha256": "6814f43ff4a7ea8ce4a95ca5ce0347bc76c31a20da633a3c99b9a78de829d1e3",
+      "paragraph_count": 101,
+      "table_count": 2,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0,
+        0.0
+      ],
+      "text_edit_status": "pass",
+      "text_edit_target": {
+        "id": "body.p0",
+        "original": "Down the Rabbit-Hole",
+        "replacement": "Down the Rabbit-Hole [DocXUnravel compatibility edit]"
+      },
+      "modified_visual_status": "differences_detected",
+      "modified_visual_max_difference_ratio": 0.00488521,
+      "modified_visual_page_ratios": [
+        0.00488521,
+        0.0
+      ],
+      "unsupported_features": [],
+      "warnings": [],
+      "errors": [],
+      "failure_classification": null,
+      "failure_artifacts": null,
+      "timings_seconds": {
+        "extract_and_profile": 0.0323,
+        "noop_reconstruction": 0.0044,
+        "noop_visual": 1.892,
+        "text_edit": 0.0684,
+        "modified_visual": 1.8784
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 10,
+        "xml_part_count": 10,
+        "relationship_count": 7,
+        "total_uncompressed_size": 56780,
+        "highest_compression_ratio": 26.334,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      },
+      "text_edit_fidelity": {
+        "schema_version": "1.0",
+        "mode": "patch",
+        "passed": true,
+        "package_integrity": {
+          "passed": true,
+          "original": {
+            "valid": true,
+            "entry_count": 10,
+            "xml_part_count": 10,
+            "relationship_count": 7,
+            "total_uncompressed_size": 56780,
+            "highest_compression_ratio": 25.187,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          },
+          "generated": {
+            "valid": true,
+            "entry_count": 10,
+            "xml_part_count": 10,
+            "relationship_count": 7,
+            "total_uncompressed_size": 56792,
+            "highest_compression_ratio": 26.334,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          }
+        },
+        "untouched_part_hash_preservation": {
+          "passed": true,
+          "expected_modified_parts": [
+            "word/document.xml"
+          ],
+          "changed_parts": [
+            "word/document.xml"
+          ],
+          "unexpected_changed_parts": [],
+          "missing_parts": [],
+          "added_parts": [],
+          "untouched_count": 9,
+          "preserved_count": 9
+        },
+        "semantic_text_preservation": {
+          "passed": true,
+          "exact_match": false,
+          "matches_expected_patch": true,
+          "original_paragraph_count": 101,
+          "generated_paragraph_count": 101,
+          "original_text_sha256": "b49ae729031651054884f4dad05d9bce8dfd5052730eb0a1f3bed247d692c771",
+          "generated_text_sha256": "7389e8044c4431dd6514cb32a1f5ab71a5d0764e6f8313a85ed9318afbdd3e19",
+          "expected_text_sha256": "7389e8044c4431dd6514cb32a1f5ab71a5d0764e6f8313a85ed9318afbdd3e19",
+          "unexpected_removed_text": [],
+          "unexpected_added_text": [],
+          "intentional_changes_allowed": true
+        },
+        "style_and_numbering_preservation": {
+          "passed": true,
+          "styles": {
+            "original": "c1450116fc7f281f16743153018bf483f9d7eefdbf01a03c933e0658b2cc271f",
+            "generated": "c1450116fc7f281f16743153018bf483f9d7eefdbf01a03c933e0658b2cc271f",
+            "preserved": true
+          },
+          "numbering": {
+            "original": "fc5d4b8b5932e16714774f4cc8a6cbc8fa26a288f3de3e5ef028ef44a316636d",
+            "generated": "fc5d4b8b5932e16714774f4cc8a6cbc8fa26a288f3de3e5ef028ef44a316636d",
+            "preserved": true
+          }
+        },
+        "visual_differences": {
+          "performed": false,
+          "passed": null,
+          "mode": null,
+          "page_count_match": null,
+          "unexpected_changed_pages": [],
+          "report": null
+        },
+        "unsupported_ooxml_structures": []
+      },
+      "modified_visual_unexpected_pages": [
+        1
+      ]
+    },
+    {
+      "id": "189a4d08ff22",
+      "filename": "portone-io_docx-editor__table-styles.docx",
+      "source": "portone-io_docx-editor",
+      "relative_path": "portone-io_docx-editor__table-styles.docx",
+      "file_size": 5758,
+      "source_sha256": "fbb08dde125b42089f02d771e87a671bb60d527ec711ba6899c3a5dedb128236",
+      "paragraph_count": 40,
+      "table_count": 3,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0
+      ],
+      "text_edit_status": "pass",
+      "text_edit_target": {
+        "id": "body.p0",
+        "original": "Readings by the hour",
+        "replacement": "Readings by the hour [DocXUnravel compatibility edit]"
+      },
+      "modified_visual_status": "differences_detected",
+      "modified_visual_max_difference_ratio": 0.00203276,
+      "modified_visual_page_ratios": [
+        0.00203276
+      ],
+      "unsupported_features": [],
+      "warnings": [],
+      "errors": [],
+      "failure_classification": null,
+      "failure_artifacts": null,
+      "timings_seconds": {
+        "extract_and_profile": 0.0126,
+        "noop_reconstruction": 0.0029,
+        "noop_visual": 1.794,
+        "text_edit": 0.0283,
+        "modified_visual": 1.8062
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 10,
+        "xml_part_count": 10,
+        "relationship_count": 7,
+        "total_uncompressed_size": 34219,
+        "highest_compression_ratio": 26.334,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      },
+      "text_edit_fidelity": {
+        "schema_version": "1.0",
+        "mode": "patch",
+        "passed": true,
+        "package_integrity": {
+          "passed": true,
+          "original": {
+            "valid": true,
+            "entry_count": 10,
+            "xml_part_count": 10,
+            "relationship_count": 7,
+            "total_uncompressed_size": 34219,
+            "highest_compression_ratio": 25.187,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          },
+          "generated": {
+            "valid": true,
+            "entry_count": 10,
+            "xml_part_count": 10,
+            "relationship_count": 7,
+            "total_uncompressed_size": 34231,
+            "highest_compression_ratio": 26.334,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          }
+        },
+        "untouched_part_hash_preservation": {
+          "passed": true,
+          "expected_modified_parts": [
+            "word/document.xml"
+          ],
+          "changed_parts": [
+            "word/document.xml"
+          ],
+          "unexpected_changed_parts": [],
+          "missing_parts": [],
+          "added_parts": [],
+          "untouched_count": 9,
+          "preserved_count": 9
+        },
+        "semantic_text_preservation": {
+          "passed": true,
+          "exact_match": false,
+          "matches_expected_patch": true,
+          "original_paragraph_count": 40,
+          "generated_paragraph_count": 40,
+          "original_text_sha256": "56e0070324137cdb07c9defc31a04a2916e662534a1100d950c51855db3e8bc3",
+          "generated_text_sha256": "4578001ab2db14acdddc083fe94f47cdd94aa531983038efb6efe6c43104374d",
+          "expected_text_sha256": "4578001ab2db14acdddc083fe94f47cdd94aa531983038efb6efe6c43104374d",
+          "unexpected_removed_text": [],
+          "unexpected_added_text": [],
+          "intentional_changes_allowed": true
+        },
+        "style_and_numbering_preservation": {
+          "passed": true,
+          "styles": {
+            "original": "bff3a9b4764eacedfa6ce30a85705541014d52310c2a2e98458a73f2f82750c7",
+            "generated": "bff3a9b4764eacedfa6ce30a85705541014d52310c2a2e98458a73f2f82750c7",
+            "preserved": true
+          },
+          "numbering": {
+            "original": "fc5d4b8b5932e16714774f4cc8a6cbc8fa26a288f3de3e5ef028ef44a316636d",
+            "generated": "fc5d4b8b5932e16714774f4cc8a6cbc8fa26a288f3de3e5ef028ef44a316636d",
+            "preserved": true
+          }
+        },
+        "visual_differences": {
+          "performed": false,
+          "passed": null,
+          "mode": null,
+          "page_count_match": null,
+          "unexpected_changed_pages": [],
+          "report": null
+        },
+        "unsupported_ooxml_structures": []
+      },
+      "modified_visual_unexpected_pages": [
+        1
+      ]
+    },
+    {
+      "id": "e3ad694682ff",
+      "filename": "python-openxml_python-docx__blk-inner-content.docx",
+      "source": "python-openxml_python-docx",
+      "relative_path": "python-openxml_python-docx__blk-inner-content.docx",
+      "file_size": 11949,
+      "source_sha256": "16243dd05f686d6d5fab331843691492ad78ae3eb4f13cc8686077b44718c0ba",
+      "paragraph_count": 6,
+      "table_count": 1,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0
+      ],
+      "text_edit_status": "pass",
+      "text_edit_target": {
+        "id": "body.p0",
+        "original": "P1",
+        "replacement": "P1 [DocXUnravel compatibility edit]"
+      },
+      "modified_visual_status": "differences_detected",
+      "modified_visual_max_difference_ratio": 0.00122755,
+      "modified_visual_page_ratios": [
+        0.00122755
+      ],
+      "unsupported_features": [
+        "bookmark"
+      ],
+      "warnings": [],
+      "errors": [],
+      "failure_classification": null,
+      "failure_artifacts": null,
+      "timings_seconds": {
+        "extract_and_profile": 0.0054,
+        "noop_reconstruction": 0.0029,
+        "noop_visual": 1.7822,
+        "text_edit": 0.013,
+        "modified_visual": 1.7728
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 11,
+        "xml_part_count": 11,
+        "relationship_count": 8,
+        "total_uncompressed_size": 50492,
+        "highest_compression_ratio": 10.112,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      },
+      "text_edit_fidelity": {
+        "schema_version": "1.0",
+        "mode": "patch",
+        "passed": true,
+        "package_integrity": {
+          "passed": true,
+          "original": {
+            "valid": true,
+            "entry_count": 11,
+            "xml_part_count": 11,
+            "relationship_count": 8,
+            "total_uncompressed_size": 50492,
+            "highest_compression_ratio": 9.946,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          },
+          "generated": {
+            "valid": true,
+            "entry_count": 11,
+            "xml_part_count": 11,
+            "relationship_count": 8,
+            "total_uncompressed_size": 50523,
+            "highest_compression_ratio": 10.112,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          }
+        },
+        "untouched_part_hash_preservation": {
+          "passed": true,
+          "expected_modified_parts": [
+            "word/document.xml"
+          ],
+          "changed_parts": [
+            "word/document.xml"
+          ],
+          "unexpected_changed_parts": [],
+          "missing_parts": [],
+          "added_parts": [],
+          "untouched_count": 10,
+          "preserved_count": 10
+        },
+        "semantic_text_preservation": {
+          "passed": true,
+          "exact_match": false,
+          "matches_expected_patch": true,
+          "original_paragraph_count": 6,
+          "generated_paragraph_count": 6,
+          "original_text_sha256": "cd5cf6e63da4f4c28a6f79b47b5e7314885afb417ce558ce84d5c08e3273c25c",
+          "generated_text_sha256": "bf1e5bb8f570a7346bd37adadcc05d3fc2ff33c1546ca6d3e5a016dd0511dc48",
+          "expected_text_sha256": "bf1e5bb8f570a7346bd37adadcc05d3fc2ff33c1546ca6d3e5a016dd0511dc48",
+          "unexpected_removed_text": [],
+          "unexpected_added_text": [],
+          "intentional_changes_allowed": true
+        },
+        "style_and_numbering_preservation": {
+          "passed": true,
+          "styles": {
+            "original": "9013ee877a800f75945e2b9b38ea7962aad34fac5fe4cc3eb6fa101e544ff1e4",
+            "generated": "9013ee877a800f75945e2b9b38ea7962aad34fac5fe4cc3eb6fa101e544ff1e4",
+            "preserved": true
+          },
+          "numbering": {
+            "original": null,
+            "generated": null,
+            "preserved": true
+          }
+        },
+        "visual_differences": {
+          "performed": false,
+          "passed": null,
+          "mode": null,
+          "page_count_match": null,
+          "unexpected_changed_pages": [],
+          "report": null
+        },
+        "unsupported_ooxml_structures": []
+      },
+      "modified_visual_unexpected_pages": [
+        1
+      ]
+    },
+    {
+      "id": "c7373f8b9272",
+      "filename": "python-openxml_python-docx__having-images.docx",
+      "source": "python-openxml_python-docx",
+      "relative_path": "python-openxml_python-docx__having-images.docx",
+      "file_size": 132875,
+      "source_sha256": "72f40baa1b89e4849e817121dbbf148ed78e51be9bf04d8e6f4bc1494aa517b7",
+      "paragraph_count": 6,
+      "table_count": 0,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0
+      ],
+      "text_edit_status": "unsupported",
+      "text_edit_target": null,
+      "modified_visual_status": "not_run",
+      "modified_visual_max_difference_ratio": null,
+      "modified_visual_page_ratios": [],
+      "unsupported_features": [
+        "bookmark",
+        "drawing",
+        "endnotes",
+        "footnotes",
+        "tab"
+      ],
+      "warnings": [
+        {
+          "code": "NO_SAFE_EDIT_TARGET",
+          "message": "No plain, non-revision, single-format body paragraph was available."
+        }
+      ],
+      "errors": [],
+      "failure_classification": "unsupported_no_safe_paragraph",
+      "failure_artifacts": ".compatibility-run/c7373f8b9272",
+      "timings_seconds": {
+        "extract_and_profile": 0.0077,
+        "noop_reconstruction": 0.0046,
+        "noop_visual": 1.8637
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 20,
+        "xml_part_count": 16,
+        "relationship_count": 17,
+        "total_uncompressed_size": 181862,
+        "highest_compression_ratio": 9.592,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      }
+    },
+    {
+      "id": "c6e0e345e88f",
+      "filename": "python-openxml_python-docx__sct-inner-content.docx",
+      "source": "python-openxml_python-docx",
+      "relative_path": "python-openxml_python-docx__sct-inner-content.docx",
+      "file_size": 12051,
+      "source_sha256": "d92e9ca7b09fab7b475c57dfba08f6acba2742aff2691cc7284649c640059c73",
+      "paragraph_count": 12,
+      "table_count": 2,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "text_edit_status": "pass",
+      "text_edit_target": {
+        "id": "body.p0",
+        "original": "P1",
+        "replacement": "P1 [DocXUnravel compatibility edit]"
+      },
+      "modified_visual_status": "differences_detected",
+      "modified_visual_max_difference_ratio": 0.00122755,
+      "modified_visual_page_ratios": [
+        0.00122755,
+        0.0,
+        0.0
+      ],
+      "unsupported_features": [
+        "bookmark"
+      ],
+      "warnings": [],
+      "errors": [],
+      "failure_classification": null,
+      "failure_artifacts": null,
+      "timings_seconds": {
+        "extract_and_profile": 0.0071,
+        "noop_reconstruction": 0.0038,
+        "noop_visual": 1.8065,
+        "text_edit": 0.017,
+        "modified_visual": 1.8397
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 11,
+        "xml_part_count": 11,
+        "relationship_count": 8,
+        "total_uncompressed_size": 51883,
+        "highest_compression_ratio": 10.112,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      },
+      "text_edit_fidelity": {
+        "schema_version": "1.0",
+        "mode": "patch",
+        "passed": true,
+        "package_integrity": {
+          "passed": true,
+          "original": {
+            "valid": true,
+            "entry_count": 11,
+            "xml_part_count": 11,
+            "relationship_count": 8,
+            "total_uncompressed_size": 51883,
+            "highest_compression_ratio": 9.946,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          },
+          "generated": {
+            "valid": true,
+            "entry_count": 11,
+            "xml_part_count": 11,
+            "relationship_count": 8,
+            "total_uncompressed_size": 51914,
+            "highest_compression_ratio": 10.112,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          }
+        },
+        "untouched_part_hash_preservation": {
+          "passed": true,
+          "expected_modified_parts": [
+            "word/document.xml"
+          ],
+          "changed_parts": [
+            "word/document.xml"
+          ],
+          "unexpected_changed_parts": [],
+          "missing_parts": [],
+          "added_parts": [],
+          "untouched_count": 10,
+          "preserved_count": 10
+        },
+        "semantic_text_preservation": {
+          "passed": true,
+          "exact_match": false,
+          "matches_expected_patch": true,
+          "original_paragraph_count": 12,
+          "generated_paragraph_count": 12,
+          "original_text_sha256": "5a5bebd1485413cf0117a9dc25190287adc8e898e9d32e5ec6c9880612f2cfa8",
+          "generated_text_sha256": "484bcebdbf1fa4c450bbb85d29bcf6659dd6720e2518cbbcdaeafc32c9a1788f",
+          "expected_text_sha256": "484bcebdbf1fa4c450bbb85d29bcf6659dd6720e2518cbbcdaeafc32c9a1788f",
+          "unexpected_removed_text": [],
+          "unexpected_added_text": [],
+          "intentional_changes_allowed": true
+        },
+        "style_and_numbering_preservation": {
+          "passed": true,
+          "styles": {
+            "original": "9013ee877a800f75945e2b9b38ea7962aad34fac5fe4cc3eb6fa101e544ff1e4",
+            "generated": "9013ee877a800f75945e2b9b38ea7962aad34fac5fe4cc3eb6fa101e544ff1e4",
+            "preserved": true
+          },
+          "numbering": {
+            "original": null,
+            "generated": null,
+            "preserved": true
+          }
+        },
+        "visual_differences": {
+          "performed": false,
+          "passed": null,
+          "mode": null,
+          "page_count_match": null,
+          "unexpected_changed_pages": [],
+          "report": null
+        },
+        "unsupported_ooxml_structures": []
+      },
+      "modified_visual_unexpected_pages": [
+        1
+      ]
+    },
+    {
+      "id": "a25ebc073381",
+      "filename": "python-openxml_python-docx__test.docx",
+      "source": "python-openxml_python-docx",
+      "relative_path": "python-openxml_python-docx__test.docx",
+      "file_size": 31773,
+      "source_sha256": "fba1c76b66ff30982e5281941ca1111eaeaeb092abb6dfbe1730bed3774f40b6",
+      "paragraph_count": 2,
+      "table_count": 0,
+      "extraction_status": "pass",
+      "profiling_status": "pass",
+      "noop_reconstruction_status": "pass",
+      "package_integrity_status": "pass",
+      "noop_visual_status": "pass",
+      "noop_visual_max_difference_ratio": 0.0,
+      "noop_visual_page_ratios": [
+        0.0
+      ],
+      "text_edit_status": "pass",
+      "text_edit_target": {
+        "id": "body.p0",
+        "original": "python-docx was here!",
+        "replacement": "python-docx was here! [DocXUnravel compatibility edit]"
+      },
+      "modified_visual_status": "differences_detected",
+      "modified_visual_max_difference_ratio": 0.00252009,
+      "modified_visual_page_ratios": [
+        0.00252009
+      ],
+      "unsupported_features": [
+        "bookmark",
+        "custom_xml",
+        "tab"
+      ],
+      "warnings": [],
+      "errors": [],
+      "failure_classification": null,
+      "failure_artifacts": null,
+      "timings_seconds": {
+        "extract_and_profile": 0.0079,
+        "noop_reconstruction": 0.0041,
+        "noop_visual": 1.7818,
+        "text_edit": 0.0208,
+        "modified_visual": 1.7886
+      },
+      "package_integrity": {
+        "valid": true,
+        "entry_count": 17,
+        "xml_part_count": 16,
+        "relationship_count": 13,
+        "total_uncompressed_size": 94223,
+        "highest_compression_ratio": 10.181,
+        "limits": {
+          "max_entries": 2048,
+          "max_entry_size": 104857600,
+          "max_total_uncompressed_size": 524288000,
+          "max_compression_ratio": 200.0
+        }
+      },
+      "text_edit_fidelity": {
+        "schema_version": "1.0",
+        "mode": "patch",
+        "passed": true,
+        "package_integrity": {
+          "passed": true,
+          "original": {
+            "valid": true,
+            "entry_count": 17,
+            "xml_part_count": 16,
+            "relationship_count": 13,
+            "total_uncompressed_size": 94223,
+            "highest_compression_ratio": 8.22,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          },
+          "generated": {
+            "valid": true,
+            "entry_count": 17,
+            "xml_part_count": 16,
+            "relationship_count": 13,
+            "total_uncompressed_size": 94254,
+            "highest_compression_ratio": 10.181,
+            "limits": {
+              "max_entries": 2048,
+              "max_entry_size": 104857600,
+              "max_total_uncompressed_size": 524288000,
+              "max_compression_ratio": 200.0
+            }
+          }
+        },
+        "untouched_part_hash_preservation": {
+          "passed": true,
+          "expected_modified_parts": [
+            "word/document.xml"
+          ],
+          "changed_parts": [
+            "word/document.xml"
+          ],
+          "unexpected_changed_parts": [],
+          "missing_parts": [],
+          "added_parts": [],
+          "untouched_count": 16,
+          "preserved_count": 16
+        },
+        "semantic_text_preservation": {
+          "passed": true,
+          "exact_match": false,
+          "matches_expected_patch": true,
+          "original_paragraph_count": 2,
+          "generated_paragraph_count": 2,
+          "original_text_sha256": "c5929b6649a49b88449517b4426e8057d972e8a15344b008b6d6aab1dfa589fc",
+          "generated_text_sha256": "aa978d85b5868a0106aca347ac9f0dbd756c69fe99f9212396ddd96b923f8891",
+          "expected_text_sha256": "aa978d85b5868a0106aca347ac9f0dbd756c69fe99f9212396ddd96b923f8891",
+          "unexpected_removed_text": [],
+          "unexpected_added_text": [],
+          "intentional_changes_allowed": true
+        },
+        "style_and_numbering_preservation": {
+          "passed": true,
+          "styles": {
+            "original": "0064fef2aa332c2cdb78f136aa39ae3e2a7b8e623c92142e0e1c2cff356bcb93",
+            "generated": "0064fef2aa332c2cdb78f136aa39ae3e2a7b8e623c92142e0e1c2cff356bcb93",
+            "preserved": true
+          },
+          "numbering": {
+            "original": "41c93e9ef4d050f9edec998876d6c123ea4bf2d512d258189f799f0b658f5549",
+            "generated": "41c93e9ef4d050f9edec998876d6c123ea4bf2d512d258189f799f0b658f5549",
+            "preserved": true
+          }
+        },
+        "visual_differences": {
+          "performed": false,
+          "passed": null,
+          "mode": null,
+          "page_count_match": null,
+          "unexpected_changed_pages": [],
+          "report": null
+        },
+        "unsupported_ooxml_structures": []
+      },
+      "modified_visual_unexpected_pages": [
+        1
+      ]
+    }
+  ]
+}

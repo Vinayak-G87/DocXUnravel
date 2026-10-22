@@ -1,0 +1,58 @@
+{
+  "contract": {
+    "schema_version": "1.1",
+    "source_sha256": "c5607814c9a52758413521bc8c038e9b8c9c33f1fd59d87224009a2b2456534b",
+    "profile_sha256": "3376104bb6bab8389c61a88d2268f51cc078002f47cd4d8dfc7b1b73d5053199"
+  },
+  "tokens": {
+    "CUSTOMER": "Acme Corporation",
+    "SYSTEM_NAME": "Order Platform"
+  },
+  "elements": {
+    "body.p5": {
+      "expected": "Architecture summary — This sentence must be replaced without changing the surrounding paragraph style, indentation or section settings. Important text remains bold if a partial-run patch is used.",
+      "value": "Architecture summary — The Order Platform uses an event-driven architecture with managed compute, durable messaging and auditable service boundaries.",
+      "format_policy": "preserve_first_run"
+    }
+  },
+  "operations": [
+    {
+      "op": "insert_after",
+      "target": "body.p15",
+      "element": {
+        "type": "paragraph",
+        "style": "Normal",
+        "text": "Inserted regression test paragraph for the generated target architecture."
+      }
+    },
+    {
+      "op": "delete",
+      "target": "body.p16"
+    },
+    {
+      "op": "insert_after",
+      "target": "body.p17",
+      "element": {
+        "type": "table",
+        "style": "Table Grid",
+        "rows": [
+          [
+            "Generated component",
+            "Technology",
+            "Status"
+          ],
+          [
+            "API",
+            "FastAPI",
+            "Approved"
+          ],
+          [
+            "Compute",
+            "Amazon EKS",
+            "Approved"
+          ]
+        ]
+      }
+    }
+  ]
+}

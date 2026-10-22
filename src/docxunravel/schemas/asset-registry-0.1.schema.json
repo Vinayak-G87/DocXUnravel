@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://docxunravel.dev/schemas/asset-registry-0.1.schema.json",
+  "title": "DocXUnravel read-only asset registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "read_only", "binary_content_included", "counts_by_kind", "items"],
+  "properties": {
+    "schema_version": {"const": "0.1"},
+    "read_only": {"const": true},
+    "binary_content_included": {"const": false},
+    "counts_by_kind": {
+      "type": "object",
+      "additionalProperties": {"type": "integer", "minimum": 0}
+    },
+    "items": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/asset"}
+    }
+  },
+  "$defs": {
+    "nullableString": {"type": ["string", "null"]},
+    "nullableInteger": {"type": ["integer", "null"]},
+    "position": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["relative_from", "align", "offset_emu"],
+      "properties": {
+        "relative_from": {"$ref": "#/$defs/nullableString"},
+        "align": {"$ref": "#/$defs/nullableString"},
+        "offset_emu": {"$ref": "#/$defs/nullableInteger"}
+      }
+    },
+    "placement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["object_type", "mode", "xpath", "dimensions", "horizontal", "vertical", "name", "description", "title"],
+      "properties": {
+        "object_type": {"type": "string"},
+        "mode": {"type": "string"},
+        "xpath": {"type": "string"},
+        "dimensions": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["width_emu", "height_emu", "width_pt", "height_pt"],
+          "properties": {
+            "width_emu": {"$ref": "#/$defs/nullableInteger"},
+            "height_emu": {"$ref": "#/$defs/nullableInteger"},
+            "width_pt": {"type": ["number", "null"]},
+            "height_pt": {"type": ["number", "null"]}
+          }
+        },
+        "horizontal": {"$ref": "#/$defs/position"},
+        "vertical": {"$ref": "#/$defs/position"},
+        "name": {"$ref": "#/$defs/nullableString"},
+        "description": {"$ref": "#/$defs/nullableString"},
+        "title": {"$ref": "#/$defs/nullableString"}
+      }
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "read_only", "media_type", "package_location", "external_target", "relationship_id", "relationship_type", "owning_part", "sha256", "size", "placements"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^asset\\.[0-9]+$"},
+        "kind": {"enum": ["image", "chart", "drawing", "embedded_object", "media", "relationship"]},
+        "read_only": {"const": true},
+        "media_type": {"$ref": "#/$defs/nullableString"},
+        "package_location": {"$ref": "#/$defs/nullableString"},
+        "external_target": {"$ref": "#/$defs/nullableString"},
+        "relationship_id": {"$ref": "#/$defs/nullableString"},
+        "relationship_type": {"type": "string"},
+        "owning_part": {"$ref": "#/$defs/nullableString"},
+        "sha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+        "size": {"$ref": "#/$defs/nullableInteger"},
+        "placements": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/placement"}
+        }
+      }
+    }
+  }
+}
