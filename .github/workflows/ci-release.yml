@@ -21,7 +21,7 @@ jobs:
         with:
           ref: ${{ github.event_name == 'release' && github.event.release.tag_name || github.ref }}
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install package and test dependencies
@@ -37,7 +37,7 @@ jobs:
           # On release events, build the release tag, not the default branch.
           ref: ${{ github.event_name == 'release' && github.event.release.tag_name || github.ref }}
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
       - name: Verify release tag matches package version
