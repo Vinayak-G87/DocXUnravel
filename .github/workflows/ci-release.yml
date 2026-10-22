@@ -1,0 +1,181 @@
+name: CI and PyPI release
+
+on:
+  push:
+  pull_request:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'release' && github.event.release.tag_name || github.ref }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install package and test dependencies
+        run: python -m pip install '.[dev]'
+      - name: Run tests
+        run: python -m unittest discover -s tests
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # On release events, build the release tag, not the default branch.
+          ref: ${{ github.event_name == 'release' && github.event.release.tag_name || github.ref }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify release tag matches package version
+        if: github.event_name == 'release'
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          python - <<'PY'
+          import os
+          import tomllib
+
+          with open('pyproject.toml', 'rb') as file:
+              version = tomllib.load(file)['project']['version']
+          tag = os.environ['RELEASE_TAG']
+          if tag not in (version, f'v{version}'):
+              raise SystemExit(f'Release tag {tag!r} does not match pyproject.toml version {version!r}')
+          PY
+      - name: Build distributions
+        run: |
+          python -m pip install build twine
+          python -m build --sdist --wheel --outdir dist
+          python -m twine check --strict dist/*.tar.gz dist/*.whl
+      - name: Check archive contents and metadata
+        run: |
+          python - <<'PY'
+          from email.parser import Parser
+          from pathlib import Path
+          import tarfile
+          import tomllib
+          import zipfile
+
+          with open('pyproject.toml', 'rb') as file:
+              version = tomllib.load(file)['project']['version']
+          sdists = list(Path('dist').glob('*.tar.gz'))
+          wheels = list(Path('dist').glob('*.whl'))
+          if len(sdists) != 1 or len(wheels) != 1:
+              raise SystemExit('Expected exactly one sdist and one wheel')
+          root = f'docxunravel-{version}'
+          if sdists[0].name != f'{root}.tar.gz' or not wheels[0].name.startswith(f'{root}-'):
+              raise SystemExit('Distribution filenames do not match package version')
+
+          with tarfile.open(sdists[0], 'r:gz') as archive:
+              names = set(archive.getnames())
+              required = {f'{root}/{name}' for name in (
+                  'PKG-INFO', 'pyproject.toml', 'README.md', 'LICENSE',
+                  'src/docxunravel/__init__.py', 'src/docxunravel/core.py',
+              )}
+              if not required <= names or not any(n.startswith(f'{root}/src/docxunravel/schemas/') and n.endswith('.json') for n in names):
+                  raise SystemExit('Source archive is missing required files or schemas')
+              if any(n.startswith(f'{root}/tests/') for n in names):
+                  raise SystemExit('Tests must not be shipped in the sdist')
+              metadata = archive.extractfile(f'{root}/PKG-INFO').read().decode('utf-8')
+              if Parser().parsestr(metadata)['Version'] != version:
+                  raise SystemExit('Source archive metadata version mismatch')
+
+          with zipfile.ZipFile(wheels[0]) as archive:
+              names = set(archive.namelist())
+              metadata_files = [n for n in names if n.endswith('.dist-info/METADATA')]
+              if len(metadata_files) != 1 or not metadata_files[0].startswith(f'{root}.dist-info/'):
+                  raise SystemExit('Wheel metadata is missing or unexpected')
+              if not {'docxunravel/__init__.py', 'docxunravel/core.py'} <= names:
+                  raise SystemExit('Wheel is missing package modules')
+              if not any(n.startswith('docxunravel/schemas/') and n.endswith('.json') for n in names):
+                  raise SystemExit('Wheel is missing schemas')
+              if any(n.startswith('tests/') for n in names):
+                  raise SystemExit('Tests must not be shipped in the wheel')
+              if Parser().parsestr(archive.read(metadata_files[0]).decode('utf-8'))['Version'] != version:
+                  raise SystemExit('Wheel metadata version mismatch')
+          PY
+      - name: Record distribution checksums
+        if: github.event_name == 'release'
+        run: sha256sum dist/*.tar.gz dist/*.whl > dist/SHA256SUMS
+      - name: Upload verified distributions
+        if: github.event_name == 'release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pypi-distributions
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    if: github.event_name == 'release' && github.event.action == 'published' && !github.event.release.prerelease
+    needs: [test, build]
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - name: Download verified distributions
+        uses: actions/download-artifact@v4
+        with:
+          name: pypi-distributions
+          path: dist
+      - name: Verify downloaded artifacts
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          python - <<'PY'
+          import hashlib
+          import os
+          from pathlib import Path
+          import tarfile
+          import zipfile
+
+          directory = Path('dist')
+          checksums = directory / 'SHA256SUMS'
+          entries = checksums.read_text(encoding='utf-8').splitlines()
+          version = os.environ['RELEASE_TAG'].removeprefix('v')
+          root = f'docxunravel-{version}'
+          expected = {f'{root}.tar.gz'}
+          wheels = list(directory.glob('*.whl'))
+          if len(wheels) != 1 or not wheels[0].name.startswith(f'{root}-'):
+              raise SystemExit('Expected a single wheel matching the release tag')
+          expected.add(wheels[0].name)
+          if {p.name for p in directory.iterdir()} != expected | {'SHA256SUMS'}:
+              raise SystemExit('Unexpected or missing distribution files')
+          verified = set()
+          for entry in entries:
+              digest, path = entry.split('  ', 1)
+              if path not in {f'dist/{name}' for name in expected} or path in verified:
+                  raise SystemExit('Unexpected or duplicate checksum entry')
+              if hashlib.sha256(Path(path).read_bytes()).hexdigest() != digest:
+                  raise SystemExit(f'Checksum mismatch: {path}')
+              verified.add(path)
+          if verified != {f'dist/{name}' for name in expected}:
+              raise SystemExit('Incomplete checksum list')
+          with tarfile.open(directory / f'{root}.tar.gz', 'r:gz') as archive:
+              if not {f'{root}/PKG-INFO', f'{root}/src/docxunravel/__init__.py'} <= set(archive.getnames()):
+                  raise SystemExit('Incomplete source archive')
+          with zipfile.ZipFile(wheels[0]) as archive:
+              if archive.testzip() is not None or 'docxunravel/__init__.py' not in archive.namelist():
+                  raise SystemExit('Invalid wheel archive')
+          PY
+          python -m pip install twine
+          python -m twine check --strict dist/*.tar.gz dist/*.whl
+          rm dist/SHA256SUMS
+      - name: Publish to PyPI with trusted publishing
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/

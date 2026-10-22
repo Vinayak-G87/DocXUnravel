@@ -10,10 +10,11 @@ from docxunravel.schemas import schema_path
 class MigrationDiscoveryTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.root = Path(__file__).resolve().parents[1]
         cls.data = json.loads(
             (
-                cls.root / "examples" / "hld" / "fictional-migration-discovery-0.1.json"
+                Path(__file__).resolve().parent
+                / "fixtures"
+                / "migration-discovery.json"
             ).read_text(encoding="utf-8")
         )
 

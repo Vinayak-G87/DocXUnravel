@@ -21,7 +21,7 @@ from collections import Counter
 from collections.abc import Iterable, Iterator
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
-from pathlib import Path, PurePosixPath
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any, cast
 
 from docx import Document
@@ -128,6 +128,23 @@ def _parse_xml_bytes(data: bytes, part_name: str) -> Any:
         raise ValueError(f"Invalid XML part {part_name}: {error}") from error
 
 
+def _package_member_path(name: str) -> PurePosixPath:
+    member = PurePosixPath(name)
+    canonical = member.as_posix() + ("/" if name.endswith("/") else "")
+    if (
+        not name
+        or member == PurePosixPath(".")
+        or member.is_absolute()
+        or ".." in member.parts
+        or canonical != name
+        or "\\" in name
+        or ":" in name
+        or PureWindowsPath(name).drive
+    ):
+        raise ValueError(f"Unsafe DOCX package path: {name}")
+    return member
+
+
 def inspect_docx_archive(
     path: str | Path,
     limits: PackageLimits = DEFAULT_PACKAGE_LIMITS,
@@ -148,9 +165,7 @@ def inspect_docx_archive(
             if len(all_names) != len(set(all_names)):
                 raise ValueError("DOCX contains duplicate package entry names")
             for info in all_infos:
-                member = PurePosixPath(info.filename)
-                if member.is_absolute() or ".." in member.parts:
-                    raise ValueError(f"Unsafe DOCX package path: {info.filename}")
+                _package_member_path(info.filename)
                 if info.flag_bits & 0x1:
                     raise ValueError(
                         f"Encrypted package entries are unsupported: {info.filename}"
@@ -803,6 +818,9 @@ def _checkbox_registry(
 def profile_document(
     source: str | Path,
     limits: PackageLimits = DEFAULT_PACKAGE_LIMITS,
+    *,
+    placeholders: dict[str, str] | None = None,
+    auto_placeholders: bool = True,
 ) -> dict[str, Any]:
     """Return a JSON-serializable, fine-grained profile of a bounded DOCX file."""
     source = Path(source)
@@ -849,6 +867,37 @@ def profile_document(
     for container in headers + footers:
         all_elements.extend(container["elements"])
     paragraphs = list(_collect_paragraphs(all_elements))
+    custom_placeholders = _validate_custom_placeholders(placeholders)
+    if auto_placeholders and any(
+        TOKEN_PATTERN.search(text) for text in custom_placeholders.values()
+    ):
+        raise ValueError(
+            "Custom placeholders containing {{ NAME }} require explicit-only mode"
+        )
+    if not auto_placeholders:
+        for paragraph in paragraphs:
+            paragraph["tokens"] = []
+    built_in_tokens = {
+        token for paragraph in paragraphs for token in paragraph["tokens"]
+    }
+    if built_in_tokens.intersection(custom_placeholders):
+        raise ValueError("Custom placeholder name conflicts with a {{ NAME }} token")
+    locations: dict[str, list[str]] = {}
+    for name, literal in custom_placeholders.items():
+        matches = [
+            paragraph for paragraph in paragraphs if literal in paragraph["text"]
+        ]
+        if not matches:
+            raise ValueError(f"Placeholder {name!r} was not found in the document")
+        for paragraph in matches:
+            if paragraph.get("has_revisions") or paragraph.get(
+                "unsupported_edit_structures"
+            ):
+                raise ValueError(
+                    f"Placeholder {name!r} is in an unsafe paragraph: {paragraph['id']}"
+                )
+            paragraph["tokens"].append(name)
+        locations[name] = [paragraph["id"] for paragraph in matches]
     tokens = sorted(
         {token for paragraph in paragraphs for token in paragraph["tokens"]}
     )
@@ -935,7 +984,36 @@ def profile_document(
             ],
         },
     }
+    if custom_placeholders:
+        profile["custom_placeholders"] = custom_placeholders
+        profile["placeholder_locations"] = locations
+    if not auto_placeholders:
+        profile["auto_placeholders"] = False
     return profile
+
+
+def _validate_custom_placeholders(
+    placeholders: dict[str, str] | None,
+) -> dict[str, str]:
+    if placeholders is None:
+        return {}
+    if not isinstance(placeholders, dict):
+        raise TypeError("placeholders must map token names to literal text")
+    result: dict[str, str] = {}
+    for name, literal in placeholders.items():
+        if not isinstance(name, str) or not TOKEN_PATTERN.fullmatch("{{" + name + "}}"):
+            raise ValueError(f"Invalid placeholder name: {name!r}")
+        if not isinstance(literal, str) or not literal:
+            raise ValueError(f"Placeholder {name!r} must have nonempty literal text")
+
+        if literal in result.values():
+            raise ValueError(
+                f"Placeholder literal {literal!r} is defined more than once"
+            )
+        if any(literal in other or other in literal for other in result.values()):
+            raise ValueError("Custom placeholder literals must not overlap")
+        result[name] = literal
+    return result
 
 
 def _walk_paragraphs(
@@ -1031,6 +1109,7 @@ def render_document(
         if actual != verify_sha256:
             raise ValueError("Source DOCX does not match the profile SHA-256")
 
+    inspect_docx_archive(source)
     document = Document(str(source))
     paragraphs: dict[str, Paragraph] = dict(_walk_paragraphs(document, "body"))
     seen_headers: set[int] = set()
@@ -1109,6 +1188,12 @@ def _semantic_profile_hash(profile: dict[str, Any]) -> str:
         }
     )
 
+    if profile.get("custom_placeholders"):
+        semantic_profile["custom_placeholders"] = profile["custom_placeholders"]
+        semantic_profile["placeholder_locations"] = profile["placeholder_locations"]
+    if profile.get("auto_placeholders") is False:
+        semantic_profile["auto_placeholders"] = False
+
     def remove_advisory_row_metadata(value: Any) -> None:
         if isinstance(value, dict):
             value.pop("has_vertical_merge", None)
@@ -1132,24 +1217,27 @@ def export_bundle(
     source: str | Path,
     bundle: str | Path,
     limits: PackageLimits = DEFAULT_PACKAGE_LIMITS,
+    *,
+    placeholders: dict[str, str] | None = None,
+    auto_placeholders: bool = True,
 ) -> dict[str, Any]:
     """Extract a DOCX losslessly within limits and write its semantic profile."""
     source = Path(source)
     bundle = Path(bundle)
     if bundle.exists() and any(bundle.iterdir()):
         raise FileExistsError(f"Bundle directory is not empty: {bundle}")
+    inspection = inspect_docx_archive(source, limits)
+    profile = profile_document(
+        source, limits, placeholders=placeholders, auto_placeholders=auto_placeholders
+    )
     package_dir = bundle / "package"
     package_dir.mkdir(parents=True, exist_ok=True)
-    inspection = inspect_docx_archive(source, limits)
-    profile = profile_document(source, limits)
     entries: list[dict[str, Any]] = []
     extracted_total = 0
 
     with zipfile.ZipFile(source) as archive:
         for info in archive.infolist():
-            member = PurePosixPath(info.filename)
-            if member.is_absolute() or ".." in member.parts:
-                raise ValueError(f"Unsafe DOCX package path: {info.filename}")
+            member = _package_member_path(info.filename)
             if info.is_dir():
                 continue
             destination = package_dir.joinpath(*member.parts)
@@ -1288,36 +1376,34 @@ def _element_has_revisions(element: Any) -> bool:
     return False
 
 
-def _replace_xml_text(element: Any, old: str, new: str) -> int:
-    count = 0
-    while old:
-        nodes = _xml_text_nodes(element)
-        combined = "".join(node.text or "" for node in nodes)
-        start = combined.find(old)
-        if start < 0:
-            break
-        end = start + len(old)
-        positions = [
-            (node_index, character_index)
-            for node_index, node in enumerate(nodes)
-            for character_index in range(len(node.text or ""))
-        ]
-        first_node, first_character = positions[start]
-        last_node, last_character = positions[end - 1]
+def _replace_xml_text(element: Any, pattern: re.Pattern[str], new: str) -> int:
+    nodes = _xml_text_nodes(element)
+    combined = "".join(node.text or "" for node in nodes)
+    matches = list(pattern.finditer(combined))
+    positions = [
+        (node_index, character_index)
+        for node_index, node in enumerate(nodes)
+        for character_index in range(len(node.text or ""))
+    ]
+    # Work from the end of the original text so newly inserted placeholder-like
+    # text is never searched again and earlier character offsets stay valid.
+    for match in reversed(matches):
+        first_node, first_character = positions[match.start()]
+        last_node, last_character = positions[match.end() - 1]
         if first_node == last_node:
             value = nodes[first_node].text or ""
-            nodes[first_node].text = (
-                value[:first_character] + new + value[last_character + 1 :]
+            _set_node_text(
+                nodes[first_node],
+                value[:first_character] + new + value[last_character + 1 :],
             )
         else:
             first_value = nodes[first_node].text or ""
             last_value = nodes[last_node].text or ""
-            nodes[first_node].text = first_value[:first_character] + new
+            _set_node_text(nodes[first_node], first_value[:first_character] + new)
             for node_index in range(first_node + 1, last_node):
-                nodes[node_index].text = ""
-            nodes[last_node].text = last_value[last_character + 1 :]
-        count += 1
-    return count
+                _set_node_text(nodes[node_index], "")
+            _set_node_text(nodes[last_node], last_value[last_character + 1 :])
+    return len(matches)
 
 
 def _set_node_text(node: Any, value: str) -> None:
@@ -1744,6 +1830,10 @@ def validate_patch(
         if value is not None and not isinstance(value, str):
             raise TypeError(f"Token {token!r} must have a string or null value")
     index = _profile_index(profile)
+    available_tokens = set(profile.get("summary", {}).get("tokens", []))
+    for token in tokens:
+        if token not in available_tokens:
+            raise ValueError(f"Placeholder {token!r} is not present in the bundle")
     warnings: list[dict[str, str]] = []
     for element_id, value in elements.items():
         entry = index.get(element_id)
@@ -2095,6 +2185,21 @@ def preview_bundle(bundle: str | Path, data: dict[str, Any]) -> dict[str, Any]:
     warnings = validate_patch(profile, data)
     index = _profile_index(profile)
     changes = []
+    for name, value in data.get("tokens", {}).items():
+        literal = profile.get("custom_placeholders", {}).get(name)
+        if literal is None:
+            continue
+        for element_id in profile["placeholder_locations"][name]:
+            changes.append(
+                {
+                    "kind": "replace_placeholder",
+                    "element": element_id,
+                    "name": name,
+                    "before": literal,
+                    "after": "" if value is None else value,
+                    "context": index[element_id]["text"],
+                }
+            )
     for element_id, value in data.get("elements", {}).items():
         replacement, _, policy = _replacement_value(value)
         changes.append(
@@ -2287,7 +2392,16 @@ def _profile_paragraph_records(profile: dict[str, Any]) -> list[dict[str, Any]]:
     elements = list(profile.get("body", []))
     for container in profile.get("headers", []) + profile.get("footers", []):
         elements.extend(container["elements"])
-    return list(_collect_paragraphs(elements))
+    records = []
+    seen: set[tuple[str, str]] = set()
+    for paragraph in _collect_paragraphs(elements):
+        locator = paragraph.get("locator", {})
+        identity = (locator.get("part", ""), locator.get("xpath", ""))
+        if identity in seen:
+            continue
+        seen.add(identity)
+        records.append(paragraph)
+    return records
 
 
 def _optional_part_hash(hashes: dict[str, str], name: str) -> str | None:
@@ -2342,9 +2456,18 @@ def _expected_semantic_texts(
         return [record["text"] for record in records]
     index = _profile_index(profile)
     text_by_id = {record["id"]: record["text"] for record in records}
+    canonical_by_locator = {
+        (record["locator"]["part"], record["locator"]["xpath"]): record["id"]
+        for record in records
+    }
+
+    def canonical_id(entry: dict[str, Any]) -> str:
+        locator = entry["locator"]
+        return canonical_by_locator[(locator["part"], locator["xpath"])]
+
     for element_id, value in patch.get("elements", {}).items():
         replacement, _, _ = _replacement_value(value)
-        text_by_id[index[element_id]["id"]] = replacement
+        text_by_id[canonical_id(index[element_id])] = replacement
     for paragraph_id, replacements in patch.get("runs", {}).items():
         entry = index[paragraph_id]
         run_texts: list[str] = [
@@ -2359,17 +2482,23 @@ def _expected_semantic_texts(
             replacement_object = cast(dict[str, Any], replacement_value)
             run_index = int(replacement_object["index"])
             run_texts[run_index] = str(replacement_object["value"])
-        text_by_id[entry["id"]] = "".join(run_texts)
+        text_by_id[canonical_id(entry)] = "".join(run_texts)
     for record in records:
-        canonical_id = record["id"]
-        text = text_by_id[canonical_id]
+        record_id = record["id"]
+        text = text_by_id[record_id]
         for token, value in patch.get("tokens", {}).items():
-            text = re.sub(
-                r"\{\{\s*" + re.escape(token) + r"\s*\}\}",
-                "" if value is None else value,
-                text,
-            )
-        text_by_id[canonical_id] = text
+            if token not in record.get("tokens", []):
+                continue
+            literal = profile.get("custom_placeholders", {}).get(token)
+            if literal is not None:
+                text = text.replace(literal, "" if value is None else value)
+            else:
+                text = re.sub(
+                    r"\{\{\s*" + re.escape(token) + r"\s*\}\}",
+                    lambda _: "" if value is None else value,
+                    text,
+                )
+        text_by_id[record_id] = text
 
     additions: list[str] = []
     checkbox_index = _checkbox_index(profile)
@@ -2728,19 +2857,24 @@ def render_bundle(
     for entry in paragraph_entries.values() if token_values else ():
         paragraph = locate(entry["id"])
         for token, value in token_values.items():
-            pattern = re.compile(r"\{\{\s*" + re.escape(str(token)) + r"\s*\}\}")
-            while True:
-                text = "".join(node.text or "" for node in _xml_text_nodes(paragraph))
-                match = pattern.search(text)
-                if not match:
-                    break
-                if _element_has_revisions(paragraph):
-                    raise ValueError(
-                        f"Tracked revisions prevent token editing of {entry['id']}"
-                    )
-                token_replacements += _replace_xml_text(
-                    paragraph, match.group(0), "" if value is None else str(value)
+            if token not in entry.get("tokens", []):
+                continue
+            literal = profile.get("custom_placeholders", {}).get(token)
+            pattern = re.compile(
+                re.escape(literal)
+                if literal is not None
+                else r"\{\{\s*" + re.escape(str(token)) + r"\s*\}\}"
+            )
+            text = "".join(node.text or "" for node in _xml_text_nodes(paragraph))
+            if not pattern.search(text):
+                continue
+            if _element_has_revisions(paragraph):
+                raise ValueError(
+                    f"Tracked revisions prevent token editing of {entry['id']}"
                 )
+            token_replacements += _replace_xml_text(
+                paragraph, pattern, "" if value is None else str(value)
+            )
 
     # Resolve all original structural targets before insertion changes positional XPath indexes.
     resolved_operations = [
@@ -2875,6 +3009,18 @@ def _load_json(path: str | Path) -> dict[str, Any]:
     return value
 
 
+def _parse_placeholder_flags(values: list[str]) -> dict[str, str]:
+    placeholders: dict[str, str] = {}
+    for value in values:
+        if "=" not in value:
+            raise ValueError("--placeholder must use NAME=LITERAL")
+        name, literal = value.split("=", 1)
+        if name in placeholders:
+            raise ValueError(f"Duplicate --placeholder name: {name!r}")
+        placeholders[name] = literal
+    return _validate_custom_placeholders(placeholders)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="DocXUnravel: losslessly profile and render agent-friendly DOCX templates"
@@ -2886,6 +3032,18 @@ def main(argv: list[str] | None = None) -> int:
     )
     profile_parser.add_argument("source")
     profile_parser.add_argument("output")
+    profile_parser.add_argument(
+        "--placeholder",
+        action="append",
+        default=[],
+        metavar="NAME=LITERAL",
+        help="Treat exact text (including <...> or [...]) as a named placeholder; repeatable",
+    )
+    profile_parser.add_argument(
+        "--explicit-placeholders-only",
+        action="store_true",
+        help="Ignore {{NAME}} tokens unless explicitly defined with --placeholder",
+    )
     profile_parser.add_argument(
         "--content-output",
         help="Also write a compact paragraph-only JSON artifact",
@@ -2903,6 +3061,18 @@ def main(argv: list[str] | None = None) -> int:
     )
     extract_parser.add_argument("source")
     extract_parser.add_argument("bundle")
+    extract_parser.add_argument(
+        "--placeholder",
+        action="append",
+        default=[],
+        metavar="NAME=LITERAL",
+        help="Treat exact text as a named placeholder; repeatable",
+    )
+    extract_parser.add_argument(
+        "--explicit-placeholders-only",
+        action="store_true",
+        help="Ignore {{NAME}} tokens unless explicitly defined with --placeholder",
+    )
     extract_parser.add_argument(
         "--max-entries", type=int, default=DEFAULT_PACKAGE_LIMITS.max_entries
     )
@@ -3084,7 +3254,11 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "profile":
-        profile = profile_document(args.source)
+        profile = profile_document(
+            args.source,
+            placeholders=_parse_placeholder_flags(args.placeholder),
+            auto_placeholders=not args.explicit_placeholders_only,
+        )
         Path(args.output).write_text(
             json.dumps(profile, indent=2, ensure_ascii=False), encoding="utf-8"
         )
@@ -3104,7 +3278,13 @@ def main(argv: list[str] | None = None) -> int:
             max_total_uncompressed_size=args.max_total_size,
             max_compression_ratio=args.max_compression_ratio,
         )
-        profile = export_bundle(args.source, args.bundle, limits)
+        profile = export_bundle(
+            args.source,
+            args.bundle,
+            limits,
+            placeholders=_parse_placeholder_flags(args.placeholder),
+            auto_placeholders=not args.explicit_placeholders_only,
+        )
         print(
             json.dumps(
                 {

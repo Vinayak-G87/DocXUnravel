@@ -229,10 +229,9 @@ class MCPWorkspaceTests(unittest.TestCase):
 
         self.discovery = json.loads(
             (
-                Path(__file__).resolve().parents[1]
-                / "examples"
-                / "hld"
-                / "fictional-migration-discovery-0.1.json"
+                Path(__file__).resolve().parent
+                / "fixtures"
+                / "migration-discovery.json"
             ).read_text(encoding="utf-8")
         )
         self.profile = self.workspace.profile("template_01")
