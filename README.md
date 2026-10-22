@@ -26,6 +26,30 @@ pip install -e '.[mcp]'     # secure MCP adapter
 
 The package exposes `docxunravel`, `python -m docxunravel`, and—with the MCP extra—`docxunravel-mcp`.
 
+### Run with Python in Docker
+
+No host Python installation is required. From the repository root, mount the repository into an official Python container, install the package, and invoke its module entry point:
+
+```bash
+docker run --rm \
+  -v "$PWD:/workspace" \
+  -w /workspace \
+  python:3.12-slim \
+  sh -c 'pip install --no-cache-dir . && python -m docxunravel extract input.docx output-bundle'
+```
+
+Both `input.docx` and the generated `output-bundle/` use paths relative to the mounted repository. Replace the final `extract ...` arguments with any command documented below. For example, compare two documents from Docker with:
+
+```bash
+docker run --rm \
+  -v "$PWD:/workspace" \
+  -w /workspace \
+  python:3.12-slim \
+  sh -c 'pip install --no-cache-dir . && python -m docxunravel compare old.docx new.docx --output comparison.json'
+```
+
+On PowerShell, use `${PWD}` in place of `$PWD`. The core extraction, compact-content, and semantic-comparison commands need only the default dependencies; visual comparison additionally requires a container image containing LibreOffice and the `visual` extras.
+
 ## Repository layout
 
 ```text
@@ -185,6 +209,7 @@ The result is:
 ```text
 customer-bundle/
 ├── profile.json
+├── content.json
 └── package/
     ├── [Content_Types].xml
     ├── _rels/.rels
@@ -195,7 +220,9 @@ customer-bundle/
     └── ...every other original package entry
 ```
 
-`profile.json` contains:
+`content.json` is the context-efficient, agent-oriented view. It contains ordered `{id, text}` entries for every non-empty body, table-cell, header, and footer paragraph, plus source hashes and the `patch_contract` needed to create a valid patch. Its summary reports how many empty paragraphs were omitted. It intentionally excludes runs, styles, formatting, package metadata, assets, and OOXML locators. Use it when an agent only needs to understand or replace paragraph text; this avoids sending a potentially tens-of-megabytes detailed profile to the model.
+
+`profile.json` remains the complete deterministic rendering and fidelity artifact. It contains:
 
 - ordered paragraphs, tables, cells, and nested tables
 - headers and footers
@@ -239,7 +266,7 @@ All package XML uses one hardened parser configuration: entity resolution, DTD l
 
 ### 2. Have AI return a patch
 
-The AI reads `profile.json` but should return only requested changes:
+For text-oriented work, the AI reads the much smaller `content.json` and returns only requested changes. Give it `profile.json` only when it needs formatting, run, structural, asset, or OOXML-locator details:
 
 ```json
 {
@@ -259,7 +286,7 @@ The AI reads `profile.json` but should return only requested changes:
 }
 ```
 
-The `contract` object must exactly match `profile.json`'s `patch_contract`; this prevents a patch created from an older or different document from being applied. Token keys omit braces. Both `{{CUSTOMER}}` and `{{ CUSTOMER }}` are recognized, including placeholders split across Word runs. An `elements` value replaces a complete existing paragraph.
+The `contract` object must exactly match the `patch_contract` in `content.json` or `profile.json`; this prevents a patch created from an older or different document from being applied. Token keys omit braces. Both `{{CUSTOMER}}` and `{{ CUSTOMER }}` are recognized, including placeholders split across Word runs. An `elements` value replaces a complete existing paragraph.
 
 For optimistic element-level conflict detection and explicit formatting behavior, use an object:
 
@@ -433,6 +460,202 @@ A generated table cell can itself contain paragraphs and nested tables:
 }
 ```
 
+## Populate DOCX templates from Markdown
+
+DocXUnravel accepts deterministic, AI-friendly Markdown as content input while keeping the DOCX bundle authoritative for layout, styles, merged cells, headers, footers, and controls. Name content with explicit markers:
+
+```markdown
+<!-- docxunravel:field executive_summary -->
+The application will migrate in three controlled waves.
+
+<!-- docxunravel:table applications -->
+| id | name | owner |
+|---|---|---|
+| APP-001 | Customer Portal | Digital |
+| APP-002 | Billing | Finance |
+
+<!-- docxunravel:field azure -->
+- [x] Azure
+
+<!-- docxunravel:field aws -->
+- [ ] AWS
+```
+
+Inspect the canonical Markdown model without creating a DOCX:
+
+```bash
+.venv/bin/docxunravel markdown-inspect generated.md --output markdown.json
+```
+
+Preview, compile, and populate against an extracted DOCX bundle:
+
+```bash
+.venv/bin/docxunravel markdown-preview \
+  template-bundle contract.json generated.md --output preview.json
+
+.venv/bin/docxunravel markdown-patch \
+  template-bundle contract.json generated.md patch.json
+
+.venv/bin/docxunravel markdown-populate \
+  template-bundle contract.json generated.md output.docx \
+  --patch-output patch.json \
+  --fidelity-output fidelity.json
+```
+
+The bounded parser supports ATX headings, paragraphs, task-list checkboxes, and GFM pipe tables. It rejects duplicate markers, raw HTML, images, malformed tables, invalid UTF-8, and inputs over configured limits. It performs no network access or external inclusion.
+
+### Repeat rows from a DOCX prototype
+
+Legacy full-column mappings remain supported. For complex rows, `row_targets` maps arbitrary JSON values to paragraphs relative to the source template row:
+
+```json
+{
+  "type": "table_rows",
+  "target": "body.t2",
+  "required": true,
+  "template_row": 1,
+  "data_path": "/applications",
+  "empty_policy": "remove_template_row",
+  "row_targets": {
+    "id": {"target": "c0.p0", "data_path": "/id"},
+    "name": {"target": "c1.p1", "data_path": "/name"},
+    "cidr": {"target": "c2.t0.r0.c1.p0", "data_path": "/network/cidr"}
+  }
+}
+```
+
+The complete source `w:tr` is cloned, so untouched cells, multiple paragraphs, horizontal merges, and nested-table formatting are retained. `empty_policy` is one of `remove_template_row`, `retain_empty_row`, or `error`. Rows participating in vertical merges are rejected because cloning one row could corrupt the merge chain.
+
+### Populate predefined keyed rows
+
+Tables with fixed labels such as Agility, Security, and Resilience use `table_keyed_rows` instead of creating duplicate rows:
+
+```json
+{
+  "type": "table_keyed_rows",
+  "target": "body.t4",
+  "required": true,
+  "data_path": "/output_goals",
+  "key": {
+    "column": 0,
+    "data_path": "/type",
+    "match": "case_insensitive"
+  },
+  "row_targets": {
+    "output_goal": {"target": "c1.p0", "data_path": "/output_goal"},
+    "metrics": {"target": "c2.p0", "data_path": "/metrics"}
+  }
+}
+```
+
+Each input key must match exactly one existing row. No rows are inserted or removed in this mode, so merged surrounding layouts remain intact.
+
+### Checkbox groups
+
+Inspect table geometry and checkbox controls without emitting paragraph prose:
+
+```bash
+.venv/bin/docxunravel inspect-controls template.docx --output controls.json
+```
+
+Profiles contain a checkbox registry for standalone Unicode boxes and modern Word `w14` checkbox controls. Native controls are counted once even though their displayed content contains a Unicode glyph. A contract maps semantic selections to discovered checkbox IDs:
+
+```json
+{
+  "type": "checkbox_group",
+  "required": true,
+  "data_path": "/hosting_venues",
+  "checkboxes": {
+    "azure": "checkbox:copy-from-profile",
+    "aws": "checkbox:copy-from-profile",
+    "saas": "checkbox:copy-from-profile"
+  }
+}
+```
+
+Every option is explicitly set: selected values are checked and omitted values are unchecked. Native controls update both `w14:checked` and their configured checked/unchecked display glyph. Standalone Unicode boxes use `☐` and `☑`.
+
+### Render a Markdown template directly to DOCX
+
+A Markdown file can also act as a JSON template. A table body row that references an array is repeated once per item:
+
+```markdown
+# {{project.name}}
+
+| ID | Application |
+|---|---|
+| {{applications.id}} | {{applications.name}} |
+```
+
+```bash
+.venv/bin/docxunravel markdown-render \
+  template.md data.json output.docx
+```
+
+Use an optional reference DOCX to inherit its styles, theme, page setup, headers, and footers:
+
+```bash
+.venv/bin/docxunravel markdown-render \
+  template.md data.json output.docx \
+  --reference corporate-reference.docx
+```
+
+Without a reference, standard `python-docx` styles are used. Markdown-only generation provides semantic consistency, not byte-identical DOCX output across different dependency versions.
+
+### Contract-aware Markdown comparison
+
+Compare named Markdown values with the populated DOCX targets:
+
+```bash
+.venv/bin/docxunravel markdown-compare \
+  generated.md output.docx template-bundle contract.json \
+  --output comparison.json \
+  --fail-on-difference
+```
+
+This checks mapped paragraph values, repeated/keyed table values, and checkbox selections rather than comparing unrelated DOCX boilerplate with the Markdown globally.
+
+## Compare documents or JSON profiles
+
+Use the native semantic comparison command to find paragraph-level differences without requiring LibreOffice:
+
+```bash
+.venv/bin/docxunravel compare old.docx new.docx --output comparison.json
+```
+
+Each input can independently be any of:
+
+- a `.docx` file
+- a `.md` or `.markdown` file
+- an extracted bundle directory
+- a detailed `profile.json`
+- a compact `content.json`
+
+This makes it possible to compare two documents directly, compare previously generated JSON artifacts, or mix formats:
+
+```bash
+.venv/bin/docxunravel compare \
+  old-bundle/content.json \
+  new-bundle/profile.json \
+  --output comparison.json
+```
+
+The report preserves paragraph order and classifies changes as `modified`, `added`, or `removed`. Every change includes the original and/or revised paragraph ID and text, while the summary includes unchanged and total paragraph counts. Formatting-only, image, layout, and package-level changes are deliberately outside this semantic comparison; use `fidelity-report` or `visual` for those checks.
+
+Differences normally still exit with status `0`, making the command suitable for report generation. Add `--fail-on-difference` to exit with status `2` when differences are present:
+
+```bash
+.venv/bin/docxunravel compare old.docx new.docx --fail-on-difference
+```
+
+The same behavior is available through Python:
+
+```python
+from docxunravel import compare_documents
+
+report = compare_documents("old.docx", "new.docx")
+```
+
 ## Optional visual regression
 
 Visual equivalence is not inferred from XML validity. The optional workflow renders both DOCX files through LibreOffice, rasterizes their PDFs, compares page dimensions and pixels, writes three images per comparable page, and emits a JSON report.
@@ -552,10 +775,10 @@ result = render_bundle(
 )
 ```
 
-The original simpler APIs remain available:
+The original simpler APIs remain available. A standalone profile command can optionally write the same compact paragraph artifact:
 
 ```bash
-.venv/bin/docxunravel profile template.docx profile.json
+.venv/bin/docxunravel profile template.docx profile.json --content-output content.json
 .venv/bin/docxunravel render template.docx values.json output.docx --profile profile.json
 ```
 

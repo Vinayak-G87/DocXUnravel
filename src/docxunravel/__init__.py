@@ -1,5 +1,12 @@
 """Public DocXUnravel Python API."""
 
+from .comparison import (
+    compact_paragraph_content,
+    compare_documents,
+    compare_paragraph_content,
+    load_paragraph_content,
+    write_paragraph_content,
+)
 from .core import (
     DEFAULT_PACKAGE_LIMITS,
     SCHEMA_VERSION,
@@ -16,6 +23,25 @@ from .core import (
     validate_patch,
     write_fidelity_report,
 )
+from .inspection import inspect_controls
+from .markdown_ingestion import (
+    DEFAULT_MARKDOWN_LIMITS,
+    MARKDOWN_SCHEMA_VERSION,
+    MarkdownLimits,
+    compare_markdown,
+    markdown_to_data,
+    parse_markdown,
+    parse_markdown_text,
+    render_markdown_template,
+)
+from .markdown_workflow import (
+    compare_markdown_to_docx,
+    compile_markdown_patch,
+    markdown_contract_data,
+    populate_markdown_docx,
+    preview_markdown_population,
+    render_markdown_docx,
+)
 from .migration_discovery import validate_migration_discovery
 from .template_contract import (
     compile_migration_template_patch,
@@ -30,26 +56,46 @@ from .template_contract import (
 __version__ = "0.4.0"
 
 __all__ = [
-    "DEFAULT_PACKAGE_LIMITS",
-    "PackageLimits",
-    "SCHEMA_VERSION",
-    "UNSAFE_EDIT_TAGS",
+    "compact_paragraph_content",
+    "compare_documents",
+    "compare_markdown",
+    "compare_markdown_to_docx",
+    "compare_paragraph_content",
+    "compile_markdown_patch",
     "compile_migration_template_patch",
     "compile_template_patch",
     "create_fidelity_report",
+    "DEFAULT_MARKDOWN_LIMITS",
+    "DEFAULT_PACKAGE_LIMITS",
     "export_bundle",
+    "inspect_controls",
     "inspect_docx_archive",
+    "load_paragraph_content",
+    "MARKDOWN_SCHEMA_VERSION",
+    "markdown_contract_data",
+    "markdown_to_data",
+    "MarkdownLimits",
+    "PackageLimits",
+    "populate_markdown_docx",
     "populate_migration_template",
     "preview_bundle",
+    "preview_markdown_population",
     "preview_migration_template_population",
     "preview_template_population",
     "profile_document",
+    "parse_markdown",
+    "parse_markdown_text",
     "render_bundle",
+    "render_markdown_docx",
+    "render_markdown_template",
     "render_document",
+    "SCHEMA_VERSION",
     "template_contract_binding",
+    "UNSAFE_EDIT_TAGS",
     "validate_docx_package",
     "validate_migration_discovery",
     "validate_patch",
     "validate_template_contract",
     "write_fidelity_report",
+    "write_paragraph_content",
 ]

@@ -22,7 +22,7 @@ from collections.abc import Iterable, Iterator
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
-from typing import Any
+from typing import Any, cast
 
 from docx import Document
 from docx.document import Document as DocumentObject
@@ -45,6 +45,9 @@ FORMAT_POLICY_ALIASES = {
     "reject_mixed_formatting": "reject_mixed_runs",
 }
 ASSET_REGISTRY_VERSION = "0.1"
+CHECKBOX_REGISTRY_VERSION = "0.1"
+CHECKBOX_GLYPHS = {"☐": False, "☑": True, "☒": True}
+W14_NS = "http://schemas.microsoft.com/office/word/2010/wordml"
 RELATIONSHIP_NS = "http://schemas.openxmlformats.org/package/2006/relationships"
 OFFICE_RELATIONSHIP_NS = (
     "http://schemas.openxmlformats.org/officeDocument/2006/relationships"
@@ -363,7 +366,18 @@ def _table_profile(table: Table, element_id: str) -> dict[str, Any]:
                     "elements": _container_profile(cell, cell_id),
                 }
             )
-        rows.append({"index": row_index, "cells": cells})
+        rows.append(
+            {
+                "index": row_index,
+                "cells": cells,
+                "has_vertical_merge": any(
+                    node.tag == qn("w:vMerge") for node in row._tr.iter()
+                ),
+                "has_horizontal_merge": any(
+                    node.tag == qn("w:gridSpan") for node in row._tr.iter()
+                ),
+            }
+        )
     return {
         "id": element_id,
         "type": "table",
@@ -673,6 +687,119 @@ def _asset_registry(source: Path) -> dict[str, Any]:
     }
 
 
+def _checkbox_registry(
+    source: Path, paragraphs: Iterable[dict[str, Any]]
+) -> dict[str, Any]:
+    owners = {
+        (paragraph["locator"]["part"], paragraph["locator"]["xpath"]): paragraph
+        for paragraph in paragraphs
+        if paragraph.get("locator")
+    }
+    items: list[dict[str, Any]] = []
+    parts = sorted({part for part, _ in owners})
+
+    with zipfile.ZipFile(source) as archive:
+        for part in parts:
+            if part not in archive.namelist():
+                continue
+            root = _parse_xml_bytes(archive.read(part), part)
+            tree = root.getroottree()
+            checkbox_sdts = list(root.iter(f"{{{W14_NS}}}checkbox"))
+            checkbox_ancestors = {
+                checkbox.getparent().getparent()
+                for checkbox in checkbox_sdts
+                if checkbox.getparent() is not None
+                and checkbox.getparent().getparent() is not None
+            }
+
+            def owner_for(
+                node: Any, *, owner_part: str = part, owner_tree: Any = tree
+            ) -> dict[str, Any] | None:
+                ancestor = node
+                while ancestor is not None and ancestor.tag != qn("w:p"):
+                    ancestor = ancestor.getparent()
+                if ancestor is None:
+                    return None
+                return owners.get((owner_part, owner_tree.getpath(ancestor)))
+
+            for checkbox in checkbox_sdts:
+                properties = checkbox.getparent()
+                sdt = properties.getparent() if properties is not None else None
+                if sdt is None or sdt.tag != qn("w:sdt"):
+                    continue
+                checked_node = checkbox.find(f"{{{W14_NS}}}checked")
+                checked_value = (
+                    checked_node.get(f"{{{W14_NS}}}val", "0")
+                    if checked_node is not None
+                    else "0"
+                )
+                owner = owner_for(sdt)
+                sdt_id = properties.find(qn("w:id")) if properties is not None else None
+                native_id = sdt_id.get(qn("w:val")) if sdt_id is not None else None
+                stable_source = (
+                    f"{part}\0sdt\0{native_id}"
+                    if native_id
+                    else f"{part}\0{tree.getpath(sdt)}\0sdt"
+                )
+                identifier = (
+                    "checkbox:" + hashlib.sha256(stable_source.encode()).hexdigest()
+                )
+                display_text = "".join(node.text or "" for node in sdt.iter(qn("w:t")))
+                display_glyph = next(
+                    (glyph for glyph in display_text if glyph in CHECKBOX_GLYPHS), None
+                )
+                items.append(
+                    {
+                        "id": identifier,
+                        "stable_id": identifier,
+                        "representation": "w14_checkbox_sdt",
+                        "checked": checked_value.lower() in {"1", "true", "on"},
+                        "glyph": display_glyph,
+                        "locator": {"part": part, "xpath": tree.getpath(sdt)},
+                        "owner_paragraph": owner["id"] if owner else None,
+                    }
+                )
+
+            glyph_ordinal: dict[str, int] = {}
+            for text_node in root.iter(qn("w:t")):
+                if any(
+                    ancestor in checkbox_ancestors
+                    for ancestor in text_node.iterancestors()
+                ):
+                    continue
+                owner = owner_for(text_node)
+                owner_key = tree.getpath(text_node)
+                for character_index, glyph in enumerate(text_node.text or ""):
+                    if glyph not in CHECKBOX_GLYPHS:
+                        continue
+                    ordinal = glyph_ordinal.get(owner_key, 0)
+                    glyph_ordinal[owner_key] = ordinal + 1
+                    stable_source = f"{part}\0{owner_key}\0unicode\0{ordinal}"
+                    identifier = (
+                        "checkbox:" + hashlib.sha256(stable_source.encode()).hexdigest()
+                    )
+                    items.append(
+                        {
+                            "id": identifier,
+                            "stable_id": identifier,
+                            "representation": "unicode",
+                            "checked": CHECKBOX_GLYPHS[glyph],
+                            "glyph": glyph,
+                            "locator": {
+                                "part": part,
+                                "xpath": tree.getpath(text_node),
+                                "character_index": character_index,
+                            },
+                            "owner_paragraph": owner["id"] if owner else None,
+                        }
+                    )
+    return {
+        "schema_version": CHECKBOX_REGISTRY_VERSION,
+        "items": items,
+        "count": len(items),
+    }
+
+
 def profile_document(
     source: str | Path,
     limits: PackageLimits = DEFAULT_PACKAGE_LIMITS,
@@ -735,8 +862,9 @@ def profile_document(
         if run["text"]
     )
     properties = document.core_properties
+    checkboxes = _checkbox_registry(source, paragraphs)
 
-    return {
+    profile = {
         "schema_version": SCHEMA_VERSION,
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "source": {
@@ -756,6 +884,7 @@ def profile_document(
             "table_count": sum(1 for element in body if element["type"] == "table"),
             "inline_shape_count": len(document.inline_shapes),
             "asset_count": len(assets["items"]),
+            "checkbox_count": checkboxes["count"],
             "tokens": tokens,
             "style_usage": dict(style_counts.most_common()),
             "font_usage_by_run": dict(font_counts.most_common()),
@@ -766,6 +895,7 @@ def profile_document(
         "headers": headers,
         "footers": footers,
         "assets": assets,
+        "checkboxes": checkboxes,
         "replacement_contract": {
             "tokens": {token: "" for token in tokens},
             "elements": {
@@ -792,6 +922,7 @@ def profile_document(
                 "styles",
                 "tokens",
                 "read-only assets and relationship-backed content",
+                "Unicode and Word checkbox content controls",
             ],
             "limited": [
                 "text boxes and drawing-layer text",
@@ -804,6 +935,7 @@ def profile_document(
             ],
         },
     }
+    return profile
 
 
 def _walk_paragraphs(
@@ -963,17 +1095,34 @@ def _sha256_bytes(value: bytes) -> str:
 
 
 def _semantic_profile_hash(profile: dict[str, Any]) -> str:
-    semantic_profile = {
-        key: profile[key]
-        for key in (
-            "schema_version",
-            "source",
-            "body",
-            "headers",
-            "footers",
-            "package",
-        )
-    }
+    semantic_profile = copy.deepcopy(
+        {
+            key: profile[key]
+            for key in (
+                "schema_version",
+                "source",
+                "body",
+                "headers",
+                "footers",
+                "package",
+            )
+        }
+    )
+
+    def remove_advisory_row_metadata(value: Any) -> None:
+        if isinstance(value, dict):
+            value.pop("has_vertical_merge", None)
+            value.pop("has_horizontal_merge", None)
+            for child in value.values():
+                remove_advisory_row_metadata(child)
+        elif isinstance(value, list):
+            for child in value:
+                remove_advisory_row_metadata(child)
+
+    remove_advisory_row_metadata(semantic_profile)
+    checkboxes = profile.get("checkboxes", {})
+    if checkboxes.get("items"):
+        semantic_profile["checkboxes"] = checkboxes
     return _sha256_bytes(
         json.dumps(semantic_profile, sort_keys=True, separators=(",", ":")).encode()
     )
@@ -1051,6 +1200,9 @@ def export_bundle(
     (bundle / "profile.json").write_text(
         json.dumps(profile, indent=2, ensure_ascii=False), encoding="utf-8"
     )
+    from .comparison import write_paragraph_content
+
+    write_paragraph_content(profile, bundle / "content.json")
     return profile
 
 
@@ -1081,6 +1233,25 @@ def _profile_index(profile: dict[str, Any]) -> dict[str, dict[str, Any]]:
         if len(entries) == 1:
             index[stable_id] = entries[0]
     return index
+
+
+def _checkbox_index(profile: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    return {
+        item["id"]: item
+        for item in profile.get("checkboxes", {}).get("items", [])
+        if isinstance(item, dict) and isinstance(item.get("id"), str)
+    }
+
+
+def _checkbox_operation_state(operation: dict[str, Any]) -> bool:
+    has_checked = "checked" in operation
+    has_value = "value" in operation
+    if has_checked == has_value:
+        raise ValueError("set_checkbox requires exactly one of checked or value")
+    state = operation["checked"] if has_checked else operation["value"]
+    if not isinstance(state, bool):
+        raise TypeError("set_checkbox state must be a boolean")
+    return state
 
 
 def _xml_text_nodes(element: Any) -> list[Any]:
@@ -1367,6 +1538,70 @@ def _validate_element_specification(specification: Any, depth: int = 0) -> None:
                 raise TypeError("Unsupported table cell value")
 
 
+ROW_TARGET_PATTERN = re.compile(
+    r"^c(?:0|[1-9][0-9]*)(?:\.t(?:0|[1-9][0-9]*)\.r(?:0|[1-9][0-9]*)"
+    r"\.c(?:0|[1-9][0-9]*))*\.p(?:0|[1-9][0-9]*)$"
+)
+EMPTY_ROW_POLICIES = {"remove_template_row", "retain_empty_row", "error"}
+
+
+def _profile_row_target(
+    table: dict[str, Any], template_row: int, relative_target: str
+) -> dict[str, Any] | None:
+    wanted = f"{table['id']}.r{template_row}.{relative_target}"
+
+    def visit(elements: Iterable[dict[str, Any]]) -> dict[str, Any] | None:
+        for element in elements:
+            if element.get("id") == wanted:
+                return element
+            if element.get("type") == "table":
+                for row in element.get("rows", []):
+                    for cell in row.get("cells", []):
+                        found = visit(cell.get("elements", []))
+                        if found is not None:
+                            return found
+        return None
+
+    for cell in table.get("rows", [])[template_row].get("cells", []):
+        found = visit(cell.get("elements", []))
+        if found is not None:
+            return found
+    return None
+
+
+def _row_target_definitions(operation: dict[str, Any]) -> dict[str, dict[str, str]]:
+    definitions = operation.get("row_targets")
+    if not isinstance(definitions, dict) or not definitions:
+        raise ValueError("Generalized repeat_table_rows requires row_targets")
+    normalized: dict[str, dict[str, str]] = {}
+    for name, specification in definitions.items():
+        if not isinstance(name, str) or not name:
+            raise ValueError(
+                "repeat_table_rows row-target names must be non-empty strings"
+            )
+        if isinstance(specification, str):
+            relative_target = specification
+            policy = "preserve_first_run"
+        elif isinstance(specification, dict):
+            if set(specification) - {"target", "format_policy"}:
+                raise ValueError("repeat_table_rows row target contains unknown fields")
+            relative_target = specification.get("target")
+            policy = FORMAT_POLICY_ALIASES.get(
+                specification.get("format_policy", "preserve_first_run"),
+                specification.get("format_policy", "preserve_first_run"),
+            )
+        else:
+            raise TypeError("repeat_table_rows row targets must be strings or objects")
+        if not isinstance(relative_target, str) or not ROW_TARGET_PATTERN.fullmatch(
+            relative_target
+        ):
+            raise ValueError(f"Invalid relative row target: {relative_target!r}")
+        if policy not in FORMAT_POLICIES:
+            raise ValueError(f"Unsupported format policy: {policy!r}")
+        normalized[name] = {"target": relative_target, "format_policy": policy}
+    return normalized
+
+
 def _validate_repeat_table_rows(
     operation: dict[str, Any], target: dict[str, Any]
 ) -> None:
@@ -1386,36 +1621,80 @@ def _validate_repeat_table_rows(
         raise TypeError("repeat_table_rows rows must be an array")
     if len(rows) > 10_000:
         raise ValueError("repeat_table_rows exceeds the 10,000 row limit")
-    width = target.get("column_count", 0)
-    for row in rows:
-        if not isinstance(row, list) or len(row) != width:
-            raise ValueError(
-                f"Every repeated row must contain exactly {width} string values"
-            )
-        if any(not isinstance(value, str) for value in row):
-            raise TypeError("Repeated table cell values must be strings")
+    empty_policy = operation.get("empty_policy", "remove_template_row")
+    if empty_policy not in EMPTY_ROW_POLICIES:
+        raise ValueError(
+            f"Unsupported repeat_table_rows empty_policy: {empty_policy!r}"
+        )
+    if not rows and empty_policy == "error":
+        raise ValueError(
+            "repeat_table_rows rows cannot be empty with empty_policy 'error'"
+        )
+
     template = target_rows[template_row]
-    cells = template.get("cells", [])
-    if any(cell.get("duplicate_merged_cell") for cell in cells):
-        raise ValueError("Merged template rows are unsupported for repeat_table_rows")
-    for cell in cells:
-        elements = cell.get("elements", [])
-        if any(element.get("type") == "table" for element in elements):
-            raise ValueError("Nested tables are unsupported in repeated template rows")
-        paragraphs = [
-            element for element in elements if element.get("type") == "paragraph"
-        ]
-        if len(paragraphs) != 1:
+    if template.get("has_vertical_merge"):
+        raise ValueError("Vertically merged template rows cannot be cloned safely")
+    row_targets = operation.get("row_targets")
+    if row_targets is None:
+        width = target.get("column_count", 0)
+        for row in rows:
+            if not isinstance(row, list) or len(row) != width:
+                raise ValueError(
+                    f"Every repeated row must contain exactly {width} string values"
+                )
+            if any(not isinstance(value, str) for value in row):
+                raise TypeError("Repeated table cell values must be strings")
+        cells = template.get("cells", [])
+        if any(cell.get("duplicate_merged_cell") for cell in cells):
             raise ValueError(
-                "Each repeated template-row cell must contain exactly one paragraph"
+                "Merged template rows are unsupported for legacy repeat_table_rows"
             )
-        paragraph = paragraphs[0]
+        for cell in cells:
+            elements = cell.get("elements", [])
+            if any(element.get("type") == "table" for element in elements):
+                raise ValueError(
+                    "Nested tables are unsupported in legacy repeated rows"
+                )
+            paragraphs = [
+                element for element in elements if element.get("type") == "paragraph"
+            ]
+            if len(paragraphs) != 1:
+                raise ValueError(
+                    "Each legacy repeated template-row cell must contain exactly one paragraph"
+                )
+            paragraph = paragraphs[0]
+            if paragraph.get("has_revisions") or paragraph.get(
+                "unsupported_edit_structures"
+            ):
+                raise ValueError(
+                    "Repeated template rows cannot contain unsafe editable structures"
+                )
+        return
+
+    definitions = _row_target_definitions(operation)
+    relative_targets: set[str] = set()
+    for definition in definitions.values():
+        relative_target = definition["target"]
+        if relative_target in relative_targets:
+            raise ValueError("repeat_table_rows maps multiple values to one row target")
+        relative_targets.add(relative_target)
+        paragraph = _profile_row_target(target, template_row, relative_target)
+        if paragraph is None or paragraph.get("type") != "paragraph":
+            raise ValueError(f"Relative row target does not exist: {relative_target}")
         if paragraph.get("has_revisions") or paragraph.get(
             "unsupported_edit_structures"
         ):
             raise ValueError(
-                "Repeated template rows cannot contain unsafe editable structures"
+                f"Relative row target is unsafe to edit: {relative_target}"
             )
+    expected_names = set(definitions)
+    for row in rows:
+        if not isinstance(row, dict) or set(row) != expected_names:
+            raise ValueError(
+                "Every generalized repeated row must match row_targets exactly"
+            )
+        if any(not isinstance(value, str) for value in row.values()):
+            raise TypeError("Repeated row-target values must be strings")
 
 
 def validate_patch(
@@ -1557,20 +1836,30 @@ def validate_patch(
             "append_to_cell",
             "delete",
             "repeat_table_rows",
+            "set_checkbox",
         }
         if name not in allowed_operations:
             raise ValueError(f"Unsupported operation: {name!r}")
-        allowed_fields = (
-            {"op", "target", "template_row", "rows"}
-            if name == "repeat_table_rows"
-            else {"op", "target", "element"}
-        )
+        if name == "repeat_table_rows":
+            allowed_fields = {
+                "op",
+                "target",
+                "template_row",
+                "rows",
+                "row_targets",
+                "empty_policy",
+            }
+        elif name == "set_checkbox":
+            allowed_fields = {"op", "target", "checked", "value", "expected"}
+        else:
+            allowed_fields = {"op", "target", "element"}
         if set(operation) - allowed_fields:
             raise ValueError("Operation contains unknown fields")
         target_id = operation.get("target")
         if not isinstance(target_id, str):
             raise TypeError("Operation target must be a string")
-        target = index.get(target_id)
+        checkbox_target = _checkbox_index(profile).get(target_id)
+        target = checkbox_target if name == "set_checkbox" else index.get(target_id)
         if target is None:
             raise KeyError(f"Unknown operation target: {target_id}")
         canonical_target = target["id"]
@@ -1580,6 +1869,14 @@ def validate_patch(
                 f"{operation_targets[canonical_target]} and {name}"
             )
         operation_targets[canonical_target] = str(name)
+        if name == "set_checkbox":
+            _checkbox_operation_state(operation)
+            expected = operation.get("expected")
+            if expected is not None and not isinstance(expected, bool):
+                raise TypeError("set_checkbox expected state must be a boolean")
+            if expected is not None and expected != target.get("checked"):
+                raise ValueError(f"Expected checkbox state conflict for {target_id}")
+            continue
         if target.get("has_revisions"):
             raise ValueError(
                 f"Tracked revisions prevent structural editing of {operation.get('target')}"
@@ -1628,7 +1925,7 @@ def validate_patch(
     affected_entries = edited_entries + [
         index[operation["target"]]
         for operation in operations
-        if operation["op"] != "delete"
+        if operation["op"] not in {"delete", "set_checkbox"}
     ]
     for deleted in deleted_entries:
         deleted_locator = deleted.get("locator", {})
@@ -1662,6 +1959,45 @@ def _verify_bundle_package(profile: dict[str, Any], package_dir: Path) -> None:
             raise ValueError(f"Bundle package part has changed: {entry['path']}")
 
 
+def _logical_row_cells(row: Any) -> list[Any]:
+    logical: list[Any] = []
+    for cell in (child for child in row if child.tag == qn("w:tc")):
+        span_node = next((node for node in cell.iter(qn("w:gridSpan"))), None)
+        try:
+            span = int(span_node.get(qn("w:val"), "1")) if span_node is not None else 1
+        except ValueError as error:
+            raise ValueError("Invalid gridSpan in repeated template row") from error
+        logical.extend([cell] * max(span, 1))
+    return logical
+
+
+def _relative_row_xml_target(row: Any, relative_target: str) -> Any:
+    segments = relative_target.split(".")
+    current = row
+    position = 0
+    while position < len(segments):
+        segment = segments[position]
+        kind, raw_index = segment[0], segment[1:]
+        index = int(raw_index)
+        if kind == "c" and current.tag == qn("w:tr"):
+            candidates = _logical_row_cells(current)
+        elif kind == "t" and current.tag == qn("w:tc"):
+            candidates = [child for child in current if child.tag == qn("w:tbl")]
+        elif kind == "r" and current.tag == qn("w:tbl"):
+            candidates = [child for child in current if child.tag == qn("w:tr")]
+        elif kind == "p" and current.tag == qn("w:tc"):
+            candidates = [child for child in current if child.tag == qn("w:p")]
+        else:
+            raise ValueError(f"Invalid relative row-target traversal at {segment!r}")
+        if index >= len(candidates):
+            raise ValueError(f"Relative row target no longer exists: {relative_target}")
+        current = candidates[index]
+        position += 1
+    if current.tag != qn("w:p"):
+        raise ValueError("Relative row target must resolve to a paragraph")
+    return current
+
+
 def _repeat_table_template_row(
     table: Any, operation: dict[str, Any]
 ) -> tuple[Any, list[Any]]:
@@ -1670,41 +2006,70 @@ def _repeat_table_template_row(
     if template_index >= len(rows):
         raise ValueError("OOXML template row no longer exists")
     template = rows[template_index]
-    if any(node.tag in {qn("w:gridSpan"), qn("w:vMerge")} for node in template.iter()):
-        raise ValueError(
-            "Merged-cell template rows are unsupported for repeat_table_rows"
+    if any(node.tag == qn("w:vMerge") for node in template.iter()):
+        raise ValueError("Vertically merged template rows cannot be cloned safely")
+    logical_cells = _logical_row_cells(template)
+    if operation.get("row_targets") is None:
+        expected_width = (
+            len(operation["rows"][0]) if operation["rows"] else len(logical_cells)
         )
-    cells = [child for child in template if child.tag == qn("w:tc")]
-    expected_width = len(operation["rows"][0]) if operation["rows"] else len(cells)
-    if len(cells) != expected_width:
-        raise ValueError("Template-row OOXML cell count does not match patch rows")
-    for cell in cells:
-        if any(node.tag == qn("w:tbl") for node in cell.iterdescendants()):
-            raise ValueError("Nested tables are unsupported in repeated template rows")
-        paragraphs = [child for child in cell if child.tag == qn("w:p")]
-        if len(paragraphs) != 1:
+        if len(logical_cells) != expected_width or len(
+            set(map(id, logical_cells))
+        ) != len(logical_cells):
             raise ValueError(
-                "Each repeated template-row cell must contain exactly one paragraph"
+                "Merged template rows are unsupported for legacy repeat_table_rows"
             )
-        if _element_has_revisions(paragraphs[0]) or _element_unsupported_structures(
-            paragraphs[0]
-        ):
-            raise ValueError(
-                "Repeated template rows cannot contain unsafe editable structures"
-            )
-    return template, cells
+        for cell in logical_cells:
+            if any(node.tag == qn("w:tbl") for node in cell.iterdescendants()):
+                raise ValueError(
+                    "Nested tables are unsupported in legacy repeated rows"
+                )
+            paragraphs = [child for child in cell if child.tag == qn("w:p")]
+            if len(paragraphs) != 1:
+                raise ValueError(
+                    "Each legacy repeated template-row cell must contain exactly one paragraph"
+                )
+    else:
+        definitions = _row_target_definitions(operation)
+        resolved = [
+            _relative_row_xml_target(template, definition["target"])
+            for definition in definitions.values()
+        ]
+        if len(set(map(id, resolved))) != len(resolved):
+            raise ValueError("Multiple row targets resolve to the same paragraph")
+        for paragraph in resolved:
+            if _element_has_revisions(paragraph) or _element_unsupported_structures(
+                paragraph
+            ):
+                raise ValueError("Repeated template-row target is unsafe to edit")
+    return template, logical_cells
 
 
 def _apply_repeat_table_rows(table: Any, operation: dict[str, Any]) -> None:
     template, _ = _repeat_table_template_row(table, operation)
+    definitions = (
+        _row_target_definitions(operation)
+        if operation.get("row_targets") is not None
+        else None
+    )
     for values in operation["rows"]:
         clone = copy.deepcopy(template)
-        cells = [child for child in clone if child.tag == qn("w:tc")]
-        for cell, value in zip(cells, values):
-            paragraph = next(child for child in cell if child.tag == qn("w:p"))
-            _apply_paragraph_replacement(paragraph, value, "preserve_first_run")
+        if definitions is None:
+            for cell, value in zip(_logical_row_cells(clone), values):
+                paragraph = next(child for child in cell if child.tag == qn("w:p"))
+                _apply_paragraph_replacement(paragraph, value, "preserve_first_run")
+        else:
+            for name, definition in definitions.items():
+                paragraph = _relative_row_xml_target(clone, definition["target"])
+                _apply_paragraph_replacement(
+                    paragraph, values[name], definition["format_policy"]
+                )
         template.addprevious(clone)
-    template.getparent().remove(template)
+    if (
+        operation["rows"]
+        or operation.get("empty_policy", "remove_template_row") == "remove_template_row"
+    ):
+        template.getparent().remove(template)
 
 
 def _validate_repeat_table_in_bundle(
@@ -1752,8 +2117,20 @@ def preview_bundle(bundle: str | Path, data: dict[str, Any]) -> dict[str, Any]:
                     "after": replacement["value"],
                 }
             )
+    checkbox_index = _checkbox_index(profile)
     for operation in data.get("operations", []):
-        if operation["op"] == "repeat_table_rows":
+        if operation["op"] == "set_checkbox":
+            target = checkbox_index[operation["target"]]
+            changes.append(
+                {
+                    "kind": "set_checkbox",
+                    "target": operation["target"],
+                    "before": target["checked"],
+                    "after": _checkbox_operation_state(operation),
+                    "representation": target["representation"],
+                }
+            )
+        elif operation["op"] == "repeat_table_rows":
             target = index[operation["target"]]
             _validate_repeat_table_in_bundle(package_dir, target, operation)
             template = target["rows"][operation["template_row"]]
@@ -1764,6 +2141,10 @@ def preview_bundle(bundle: str | Path, data: dict[str, Any]) -> dict[str, Any]:
                     "template_row": operation["template_row"],
                     "before": [cell.get("text", "") for cell in template["cells"]],
                     "after": operation["rows"],
+                    "row_targets": operation.get("row_targets"),
+                    "empty_policy": operation.get(
+                        "empty_policy", "remove_template_row"
+                    ),
                 }
             )
         else:
@@ -1883,8 +2264,11 @@ def _expected_modified_parts(
         entry = index.get(target_id)
         if entry and entry.get("locator"):
             parts.add(entry["locator"]["part"])
+    checkbox_index = _checkbox_index(profile)
     for operation in patch.get("operations", []):
-        entry = index.get(operation.get("target"))
+        entry = index.get(operation.get("target")) or checkbox_index.get(
+            operation.get("target")
+        )
         if entry and entry.get("locator"):
             parts.add(entry["locator"]["part"])
     token_keys = set(patch.get("tokens", {}))
@@ -1963,9 +2347,18 @@ def _expected_semantic_texts(
         text_by_id[index[element_id]["id"]] = replacement
     for paragraph_id, replacements in patch.get("runs", {}).items():
         entry = index[paragraph_id]
-        run_texts = [run["text"] for run in entry.get("runs", [])]
-        for replacement in replacements:
-            run_texts[replacement["index"]] = replacement["value"]
+        run_texts: list[str] = [
+            str(run.get("text", "")) for run in entry.get("runs", [])
+        ]
+        if not isinstance(replacements, list):
+            raise TypeError("Run replacements must be an array")
+        replacement_list: list[Any] = replacements
+        for replacement_value in replacement_list:
+            if not isinstance(replacement_value, dict):
+                raise TypeError("Run replacement must be an object")
+            replacement_object = cast(dict[str, Any], replacement_value)
+            run_index = int(replacement_object["index"])
+            run_texts[run_index] = str(replacement_object["value"])
         text_by_id[entry["id"]] = "".join(run_texts)
     for record in records:
         canonical_id = record["id"]
@@ -1979,8 +2372,13 @@ def _expected_semantic_texts(
         text_by_id[canonical_id] = text
 
     additions: list[str] = []
+    checkbox_index = _checkbox_index(profile)
     for operation in patch.get("operations", []):
-        target = index[operation["target"]]
+        target = (
+            checkbox_index[operation["target"]]
+            if operation["op"] == "set_checkbox"
+            else index[operation["target"]]
+        )
         if operation["op"] == "delete":
             removed = Counter(_entry_paragraph_texts(target))
             for record_id, text in list(text_by_id.items()):
@@ -1989,16 +2387,52 @@ def _expected_semantic_texts(
                     removed[text] -= 1
         elif operation["op"] == "repeat_table_rows":
             template = target["rows"][operation["template_row"]]
-            removed = Counter(
-                text
-                for cell in template["cells"]
-                for text in _entry_paragraph_texts(cell)
+            remove_template = (
+                bool(operation["rows"])
+                or operation.get("empty_policy", "remove_template_row")
+                == "remove_template_row"
             )
-            for record_id, text in list(text_by_id.items()):
-                if removed[text]:
-                    del text_by_id[record_id]
-                    removed[text] -= 1
-            additions.extend(value for row in operation["rows"] for value in row)
+            if remove_template:
+                removed = Counter(
+                    text
+                    for cell in template["cells"]
+                    for text in _entry_paragraph_texts(cell)
+                )
+                for record_id, text in list(text_by_id.items()):
+                    if removed[text]:
+                        del text_by_id[record_id]
+                        removed[text] -= 1
+            if operation.get("row_targets") is None:
+                additions.extend(value for row in operation["rows"] for value in row)
+            else:
+                definitions = _row_target_definitions(operation)
+                template_records = [
+                    record
+                    for cell in template["cells"]
+                    for record in _collect_paragraphs(cell.get("elements", []))
+                ]
+                for row in operation["rows"]:
+                    replacements: dict[str, str] = {}
+                    for name, definition in definitions.items():
+                        paragraph = _profile_row_target(
+                            target, operation["template_row"], definition["target"]
+                        )
+                        if paragraph is None:
+                            raise ValueError(
+                                f"Relative row target disappeared: {definition['target']}"
+                            )
+                        replacements[paragraph["id"]] = row[name]
+                    additions.extend(
+                        str(replacements.get(record["id"], record.get("text", "")))
+                        for record in template_records
+                    )
+        elif operation["op"] == "set_checkbox":
+            checkbox = _checkbox_index(profile)[operation["target"]]
+            owner = checkbox.get("owner_paragraph")
+            old_glyph = checkbox.get("glyph")
+            new_glyph = "☑" if _checkbox_operation_state(operation) else "☐"
+            if owner in text_by_id and old_glyph:
+                text_by_id[owner] = text_by_id[owner].replace(old_glyph, new_glyph, 1)
         else:
             additions.extend(_inserted_texts(operation["element"]))
     return list(text_by_id.values()) + additions
@@ -2169,6 +2603,56 @@ def write_fidelity_report(
     return report
 
 
+def _w14_state_glyph(checkbox: Any, checked: bool) -> str:
+    state_name = "checkedState" if checked else "uncheckedState"
+    state = checkbox.find(f"{{{W14_NS}}}{state_name}")
+    raw_value = state.get(f"{{{W14_NS}}}val") if state is not None else None
+    if raw_value:
+        try:
+            return chr(int(raw_value, 16))
+        except (ValueError, OverflowError):
+            pass
+    return "☑" if checked else "☐"
+
+
+def _apply_checkbox_state(element: Any, entry: dict[str, Any], checked: bool) -> None:
+    if entry["representation"] == "unicode":
+        value = element.text or ""
+        character_index = entry["locator"]["character_index"]
+        if (
+            character_index >= len(value)
+            or value[character_index] not in CHECKBOX_GLYPHS
+        ):
+            raise ValueError(f"Unicode checkbox locator is stale: {entry['id']}")
+        glyph = "☑" if checked else "☐"
+        _set_node_text(
+            element, value[:character_index] + glyph + value[character_index + 1 :]
+        )
+        return
+
+    checkbox = next(element.iter(f"{{{W14_NS}}}checkbox"), None)
+    if checkbox is None:
+        raise ValueError(f"Word checkbox locator is stale: {entry['id']}")
+    checked_node = checkbox.find(f"{{{W14_NS}}}checked")
+    if checked_node is None:
+        checked_node = etree.Element(f"{{{W14_NS}}}checked")
+        checkbox.insert(0, checked_node)
+    checked_node.set(f"{{{W14_NS}}}val", "1" if checked else "0")
+    glyph = _w14_state_glyph(checkbox, checked)
+    text_nodes = list(element.iter(qn("w:t")))
+    for text_node in text_nodes:
+        value = text_node.text or ""
+        for character_index, character in enumerate(value):
+            if character in CHECKBOX_GLYPHS:
+                _set_node_text(
+                    text_node,
+                    value[:character_index] + glyph + value[character_index + 1 :],
+                )
+                return
+    if text_nodes:
+        _set_node_text(text_nodes[0], glyph)
+
+
 def render_bundle(
     bundle: str | Path, output: str | Path, data: dict[str, Any]
 ) -> dict[str, Any]:
@@ -2179,12 +2663,14 @@ def render_bundle(
     _verify_bundle_package(profile, package_dir)
     warnings = validate_patch(profile, data)
     index = _profile_index(profile)
+    checkbox_index = _checkbox_index(profile)
     modified: dict[str, tuple[Any, Any]] = {}
 
     def locate(element_id: str) -> Any:
-        if element_id not in index:
+        entry = index.get(element_id) or checkbox_index.get(element_id)
+        if entry is None:
             raise KeyError(f"Unknown element ID: {element_id}")
-        locator = index[element_id].get("locator")
+        locator = entry.get("locator")
         if not locator:
             raise ValueError(f"Element has no OOXML locator: {element_id}")
         part = locator["part"]
@@ -2262,8 +2748,41 @@ def render_bundle(
         for operation in data.get("operations", [])
     ]
     structural_changes = 0
+    changed_checkboxes = 0
     for operation, target in resolved_operations:
         operation_name = operation.get("op")
+        if operation_name == "set_checkbox":
+            entry = checkbox_index[operation["target"]]
+            expected = operation.get("expected")
+            if expected is not None:
+                if entry["representation"] == "unicode":
+                    character_index = entry["locator"]["character_index"]
+                    current_text = target.text or ""
+                    current = (
+                        CHECKBOX_GLYPHS.get(current_text[character_index])
+                        if character_index < len(current_text)
+                        else None
+                    )
+                else:
+                    checkbox = next(target.iter(f"{{{W14_NS}}}checkbox"), None)
+                    checked_node = (
+                        checkbox.find(f"{{{W14_NS}}}checked")
+                        if checkbox is not None
+                        else None
+                    )
+                    current_value = (
+                        checked_node.get(f"{{{W14_NS}}}val", "0")
+                        if checked_node is not None
+                        else "0"
+                    )
+                    current = current_value.lower() in {"1", "true", "on"}
+                if current != expected:
+                    raise ValueError(
+                        f"OOXML checkbox state conflict for {operation['target']}"
+                    )
+            _apply_checkbox_state(target, entry, _checkbox_operation_state(operation))
+            changed_checkboxes += 1
+            continue
         if operation_name == "repeat_table_rows":
             _apply_repeat_table_rows(target, operation)
             structural_changes += 1
@@ -2339,6 +2858,7 @@ def render_bundle(
         "output": str(output),
         "changed_elements": changed_elements,
         "changed_runs": changed_runs,
+        "changed_checkboxes": changed_checkboxes,
         "token_replacements": token_replacements,
         "structural_changes": structural_changes,
         "modified_parts": sorted(modified),
@@ -2366,6 +2886,17 @@ def main(argv: list[str] | None = None) -> int:
     )
     profile_parser.add_argument("source")
     profile_parser.add_argument("output")
+    profile_parser.add_argument(
+        "--content-output",
+        help="Also write a compact paragraph-only JSON artifact",
+    )
+
+    controls_parser = commands.add_parser(
+        "inspect-controls",
+        help="Report table geometry and checkbox controls without paragraph prose",
+    )
+    controls_parser.add_argument("source")
+    controls_parser.add_argument("--output")
 
     extract_parser = commands.add_parser(
         "extract", help="Create a lossless OOXML package plus semantic JSON bundle"
@@ -2387,6 +2918,19 @@ def main(argv: list[str] | None = None) -> int:
         "--max-compression-ratio",
         type=float,
         default=DEFAULT_PACKAGE_LIMITS.max_compression_ratio,
+    )
+
+    compare_parser = commands.add_parser(
+        "compare",
+        help="Compare paragraph content in Markdown, DOCX, bundles, or profile/content JSON",
+    )
+    compare_parser.add_argument("original")
+    compare_parser.add_argument("revised")
+    compare_parser.add_argument("--output", help="Write the JSON comparison report")
+    compare_parser.add_argument(
+        "--fail-on-difference",
+        action="store_true",
+        help="Exit with status 2 when paragraph differences are found",
     )
 
     preview_parser = commands.add_parser(
@@ -2441,6 +2985,56 @@ def main(argv: list[str] | None = None) -> int:
         "--profile", help="Profile JSON whose source SHA-256 must match"
     )
 
+    markdown_inspect_parser = commands.add_parser(
+        "markdown-inspect", help="Parse Markdown into deterministic semantic JSON"
+    )
+    markdown_inspect_parser.add_argument("source")
+    markdown_inspect_parser.add_argument("--output")
+
+    markdown_preview_parser = commands.add_parser(
+        "markdown-preview", help="Preview Markdown population into a DOCX bundle"
+    )
+    markdown_preview_parser.add_argument("bundle")
+    markdown_preview_parser.add_argument("contract")
+    markdown_preview_parser.add_argument("markdown")
+    markdown_preview_parser.add_argument("--output")
+
+    markdown_patch_parser = commands.add_parser(
+        "markdown-patch", help="Compile Markdown into a validated DOCX patch"
+    )
+    markdown_patch_parser.add_argument("bundle")
+    markdown_patch_parser.add_argument("contract")
+    markdown_patch_parser.add_argument("markdown")
+    markdown_patch_parser.add_argument("output")
+
+    markdown_populate_parser = commands.add_parser(
+        "markdown-populate", help="Populate an existing DOCX bundle from Markdown"
+    )
+    markdown_populate_parser.add_argument("bundle")
+    markdown_populate_parser.add_argument("contract")
+    markdown_populate_parser.add_argument("markdown")
+    markdown_populate_parser.add_argument("output")
+    markdown_populate_parser.add_argument("--patch-output")
+    markdown_populate_parser.add_argument("--fidelity-output")
+
+    markdown_render_parser = commands.add_parser(
+        "markdown-render", help="Render a Markdown template and JSON data to DOCX"
+    )
+    markdown_render_parser.add_argument("template")
+    markdown_render_parser.add_argument("data")
+    markdown_render_parser.add_argument("output")
+    markdown_render_parser.add_argument("--reference")
+
+    markdown_compare_parser = commands.add_parser(
+        "markdown-compare", help="Compare mapped Markdown fields with a generated DOCX"
+    )
+    markdown_compare_parser.add_argument("markdown")
+    markdown_compare_parser.add_argument("generated")
+    markdown_compare_parser.add_argument("bundle")
+    markdown_compare_parser.add_argument("contract")
+    markdown_compare_parser.add_argument("--output")
+    markdown_compare_parser.add_argument("--fail-on-difference", action="store_true")
+
     template_validate_parser = commands.add_parser(
         "template-validate",
         help="Validate a semantic template contract against an extracted bundle",
@@ -2478,16 +3072,29 @@ def main(argv: list[str] | None = None) -> int:
     template_populate_parser.add_argument("--fidelity-output")
 
     args = parser.parse_args(argv)
+    if args.command == "inspect-controls":
+        from .inspection import inspect_controls
+
+        result = inspect_controls(args.source)
+        if args.output:
+            Path(args.output).write_text(
+                json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8"
+            )
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+        return 0
+
     if args.command == "profile":
         profile = profile_document(args.source)
         Path(args.output).write_text(
             json.dumps(profile, indent=2, ensure_ascii=False), encoding="utf-8"
         )
-        print(
-            json.dumps(
-                {"profile": args.output, "summary": profile["summary"]}, indent=2
-            )
-        )
+        result = {"profile": args.output, "summary": profile["summary"]}
+        if args.content_output:
+            from .comparison import write_paragraph_content
+
+            write_paragraph_content(profile, args.content_output)
+            result["content"] = args.content_output
+        print(json.dumps(result, indent=2))
         return 0
 
     if args.command == "extract":
@@ -2502,6 +3109,8 @@ def main(argv: list[str] | None = None) -> int:
             json.dumps(
                 {
                     "bundle": args.bundle,
+                    "profile": str(Path(args.bundle) / "profile.json"),
+                    "content": str(Path(args.bundle) / "content.json"),
                     "entries": profile["package"]["entry_count"],
                     "summary": profile["summary"],
                 },
@@ -2509,6 +3118,81 @@ def main(argv: list[str] | None = None) -> int:
             )
         )
         return 0
+
+    if args.command == "compare":
+        from .comparison import compare_documents
+
+        report = compare_documents(args.original, args.revised)
+        if args.output:
+            Path(args.output).write_text(
+                json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8"
+            )
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+        return 2 if args.fail_on_difference and not report["equal"] else 0
+
+    if args.command.startswith("markdown-"):
+        from .markdown_ingestion import parse_markdown
+        from .markdown_workflow import (
+            compare_markdown_to_docx,
+            compile_markdown_patch,
+            populate_markdown_docx,
+            preview_markdown_population,
+            render_markdown_docx,
+        )
+
+        if args.command == "markdown-inspect":
+            result = parse_markdown(args.source)
+            if args.output:
+                Path(args.output).write_text(
+                    json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8"
+                )
+            print(json.dumps(result, indent=2, ensure_ascii=False))
+            return 0
+        contract = _load_json(args.contract) if hasattr(args, "contract") else None
+        if args.command == "markdown-preview":
+            result = preview_markdown_population(args.bundle, contract, args.markdown)
+            if args.output:
+                Path(args.output).write_text(
+                    json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8"
+                )
+            print(json.dumps(result, indent=2, ensure_ascii=False))
+            return 0 if result["valid"] else 2
+        if args.command == "markdown-patch":
+            patch = compile_markdown_patch(args.bundle, contract, args.markdown)
+            Path(args.output).write_text(
+                json.dumps(patch, indent=2, ensure_ascii=False), encoding="utf-8"
+            )
+            print(json.dumps({"valid": True, "patch": args.output}, indent=2))
+            return 0
+        if args.command == "markdown-populate":
+            result = populate_markdown_docx(
+                args.bundle,
+                args.output,
+                contract,
+                args.markdown,
+                patch_output=args.patch_output,
+                fidelity_output=args.fidelity_output,
+            )
+            print(json.dumps(result, indent=2, ensure_ascii=False))
+            return 0
+        if args.command == "markdown-render":
+            result = render_markdown_docx(
+                args.template,
+                args.data,
+                args.output,
+                reference=args.reference,
+            )
+            print(json.dumps(result, indent=2, ensure_ascii=False))
+            return 0
+        result = compare_markdown_to_docx(
+            args.markdown, args.generated, args.bundle, contract
+        )
+        if args.output:
+            Path(args.output).write_text(
+                json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8"
+            )
+        print(json.dumps(result, indent=2, ensure_ascii=False))
+        return 2 if args.fail_on_difference and not result["equal"] else 0
 
     if args.command.startswith("template-"):
         from .template_contract import (

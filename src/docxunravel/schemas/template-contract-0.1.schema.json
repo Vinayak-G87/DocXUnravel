@@ -30,9 +30,9 @@
     "field": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "target", "required"],
+      "required": ["type", "required"],
       "properties": {
-        "type": {"enum": ["text", "table_cell", "table_rows", "placeholder"]},
+        "type": {"enum": ["text", "table_cell", "table_rows", "table_keyed_rows", "placeholder", "checkbox_group"]},
         "target": {"type": "string", "minLength": 1},
         "required": {"type": "boolean"},
         "description": {"type": "string"},
@@ -52,6 +52,40 @@
           "minProperties": 1,
           "propertyNames": {"pattern": "^[A-Za-z_][A-Za-z0-9_.-]*$"},
           "additionalProperties": {"type": "integer", "minimum": 0}
+        },
+        "row_targets": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {"pattern": "^[A-Za-z_][A-Za-z0-9_.-]*$"},
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["target"],
+            "properties": {
+              "target": {"type": "string", "pattern": "^c[0-9]+(?:\\.(?:p[0-9]+|t[0-9]+|r[0-9]+|c[0-9]+))+$"},
+              "data_path": {"type": "string", "pattern": "^($|/)"},
+              "format_policy": {
+                "enum": ["preserve_first_run", "preserve_common_formatting", "replace_text_only", "reject_mixed_runs"]
+              }
+            }
+          }
+        },
+        "empty_policy": {"enum": ["remove_template_row", "retain_empty_row", "error"]},
+        "key": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["column"],
+          "properties": {
+            "column": {"type": "integer", "minimum": 0},
+            "data_path": {"type": "string", "pattern": "^($|/)"},
+            "match": {"enum": ["exact", "case_insensitive"]}
+          }
+        },
+        "checkboxes": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {"pattern": "^[A-Za-z_][A-Za-z0-9_.-]*$"},
+          "additionalProperties": {"type": "string", "minLength": 1}
         }
       },
       "allOf": [
@@ -61,14 +95,27 @@
           "else": {"not": {"required": ["token"]}}
         },
         {
+          "if": {"properties": {"type": {"const": "checkbox_group"}}, "required": ["type"]},
+          "then": {
+            "required": ["checkboxes"],
+            "not": {"required": ["target"]}
+          },
+          "else": {"required": ["target"]}
+        },
+        {
           "if": {"properties": {"type": {"const": "table_rows"}}, "required": ["type"]},
-          "then": {"required": ["template_row", "columns"]},
-          "else": {
-            "allOf": [
-              {"not": {"required": ["template_row"]}},
-              {"not": {"required": ["columns"]}}
+          "then": {
+            "required": ["template_row"],
+            "oneOf": [
+              {"required": ["columns"], "not": {"required": ["row_targets"]}},
+              {"required": ["row_targets"], "not": {"required": ["columns"]}}
             ]
           }
+        },
+        {
+          "if": {"properties": {"type": {"const": "table_keyed_rows"}}, "required": ["type"]},
+          "then": {"required": ["key", "row_targets"]},
+          "else": {"not": {"required": ["key"]}}
         },
         {
           "if": {"properties": {"type": {"enum": ["text", "table_cell"]}}, "required": ["type"]},

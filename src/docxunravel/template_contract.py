@@ -17,9 +17,13 @@ from typing import Any
 
 from .core import (
     FORMAT_POLICIES,
+    FORMAT_POLICY_ALIASES,
+    ROW_TARGET_PATTERN,
     SCHEMA_VERSION,
     TOKEN_PATTERN,
+    _checkbox_index,
     _profile_index,
+    _profile_row_target,
     _semantic_profile_hash,
     create_fidelity_report,
     preview_bundle,
@@ -29,7 +33,14 @@ from .core import (
 from .migration_discovery import validate_migration_discovery
 
 TEMPLATE_CONTRACT_VERSION = "0.1"
-FIELD_TYPES = {"text", "table_cell", "table_rows", "placeholder"}
+FIELD_TYPES = {
+    "text",
+    "table_cell",
+    "table_rows",
+    "table_keyed_rows",
+    "placeholder",
+    "checkbox_group",
+}
 SEMANTIC_NAME_PATTERN = re.compile(r"^[A-Za-z_][A-Za-z0-9_.-]*$")
 FIELD_KEYS = {
     "type",
@@ -41,6 +52,10 @@ FIELD_KEYS = {
     "token",
     "template_row",
     "columns",
+    "row_targets",
+    "empty_policy",
+    "checkboxes",
+    "key",
 }
 
 
@@ -131,6 +146,111 @@ def _validate_columns(
         )
 
 
+def _validate_row_targets(
+    field_name: str, field: dict[str, Any], target: dict[str, Any]
+) -> None:
+    row_targets = field.get("row_targets")
+    if not isinstance(row_targets, dict) or not row_targets:
+        raise ValueError(f"Table-row field {field_name!r} requires row_targets")
+    template_row = field.get("template_row")
+    if (
+        not isinstance(template_row, int)
+        or isinstance(template_row, bool)
+        or template_row < 0
+        or template_row >= target.get("row_count", 0)
+    ):
+        raise ValueError(
+            f"Table-row field {field_name!r} template_row does not exist in {target['id']}"
+        )
+    seen_targets: set[str] = set()
+    for name, specification in row_targets.items():
+        if not isinstance(name, str) or not SEMANTIC_NAME_PATTERN.fullmatch(name):
+            raise ValueError(
+                f"Table-row field {field_name!r} has invalid row-target name {name!r}"
+            )
+        specification = _require_object(
+            specification, f"Table-row field {field_name!r} target {name!r}"
+        )
+        unknown = set(specification) - {"target", "data_path", "format_policy"}
+        if unknown:
+            raise ValueError(
+                f"Table-row field {field_name!r} target {name!r} has unknown properties"
+            )
+        relative_target = specification.get("target")
+        if not isinstance(relative_target, str) or not ROW_TARGET_PATTERN.fullmatch(
+            relative_target
+        ):
+            raise ValueError(
+                f"Table-row field {field_name!r} has invalid relative target {relative_target!r}"
+            )
+        if relative_target in seen_targets:
+            raise ValueError(
+                f"Table-row field {field_name!r} maps multiple values to {relative_target}"
+            )
+        seen_targets.add(relative_target)
+        paragraph = _profile_row_target(target, template_row, relative_target)
+        if paragraph is None or paragraph.get("type") != "paragraph":
+            raise ValueError(
+                f"Table-row field {field_name!r} target does not exist: {relative_target}"
+            )
+        _validate_data_path(specification.get("data_path"), f"{field_name}.{name}")
+        policy = FORMAT_POLICY_ALIASES.get(
+            specification.get("format_policy", "preserve_first_run"),
+            specification.get("format_policy", "preserve_first_run"),
+        )
+        if policy not in FORMAT_POLICIES:
+            raise ValueError(
+                f"Table-row field {field_name!r} target {name!r} has unsupported format policy"
+            )
+
+
+def _validate_keyed_rows(
+    field_name: str, field: dict[str, Any], target: dict[str, Any]
+) -> None:
+    key = _require_object(field.get("key"), f"Keyed-row field {field_name!r} key")
+    unknown = set(key) - {"column", "data_path", "match"}
+    if unknown:
+        raise ValueError(f"Keyed-row field {field_name!r} key has unknown properties")
+    column = key.get("column")
+    if (
+        not isinstance(column, int)
+        or isinstance(column, bool)
+        or not 0 <= column < target.get("column_count", 0)
+    ):
+        raise ValueError(
+            f"Keyed-row field {field_name!r} key column is outside the table"
+        )
+    _validate_data_path(key.get("data_path"), field_name)
+    if key.get("match", "exact") not in {"exact", "case_insensitive"}:
+        raise ValueError(
+            f"Keyed-row field {field_name!r} has unsupported key match policy"
+        )
+    row_targets = field.get("row_targets")
+    if not isinstance(row_targets, dict) or not row_targets:
+        raise ValueError(f"Keyed-row field {field_name!r} requires row_targets")
+    for name, specification in row_targets.items():
+        if not isinstance(name, str) or not SEMANTIC_NAME_PATTERN.fullmatch(name):
+            raise ValueError(f"Keyed-row field {field_name!r} has invalid target name")
+        specification = _require_object(
+            specification, f"Keyed-row field {field_name!r} target {name!r}"
+        )
+        if set(specification) - {"target", "data_path", "format_policy"}:
+            raise ValueError(
+                f"Keyed-row field {field_name!r} target {name!r} has unknown properties"
+            )
+        relative = specification.get("target")
+        if not isinstance(relative, str) or not ROW_TARGET_PATTERN.fullmatch(relative):
+            raise ValueError(
+                f"Keyed-row field {field_name!r} target {name!r} is invalid"
+            )
+        _validate_data_path(specification.get("data_path"), f"{field_name}.{name}")
+        policy = specification.get("format_policy", "preserve_first_run")
+        if policy not in FORMAT_POLICIES and policy not in FORMAT_POLICY_ALIASES:
+            raise ValueError(
+                f"Keyed-row field {field_name!r} target {name!r} has unsupported format policy"
+            )
+
+
 def validate_template_contract(
     profile: dict[str, Any], contract: dict[str, Any]
 ) -> dict[str, Any]:
@@ -172,6 +292,7 @@ def validate_template_contract(
     normalized = copy.deepcopy(contract)
     seen_targets: dict[str, str] = {}
     seen_tokens: dict[str, str] = {}
+    seen_checkboxes: dict[str, str] = {}
 
     for field_name, field_value in fields.items():
         if not isinstance(field_name, str) or not SEMANTIC_NAME_PATTERN.fullmatch(
@@ -184,7 +305,9 @@ def validate_template_contract(
             raise ValueError(
                 f"Field {field_name!r} has unknown properties: {', '.join(sorted(unknown))}"
             )
-        required_keys = {"type", "target", "required"}
+        required_keys = {"type", "required"}
+        if field.get("type") != "checkbox_group":
+            required_keys.add("target")
         missing = required_keys - set(field)
         if missing:
             raise ValueError(
@@ -202,6 +325,49 @@ def validate_template_contract(
         ):
             raise TypeError(f"Field {field_name!r} description must be a string")
         _validate_data_path(field.get("data_path"), field_name)
+
+        field_type = field.get("type")
+        if not isinstance(field_type, str):
+            raise TypeError(f"Field {field_name!r} type must be a string")
+        if field_type == "checkbox_group":
+            checkbox_map = field.get("checkboxes")
+            if not isinstance(checkbox_map, dict) or not checkbox_map:
+                raise ValueError(
+                    f"Checkbox-group field {field_name!r} requires checkbox mappings"
+                )
+            registry = _checkbox_index(profile)
+            for selection, checkbox_id in checkbox_map.items():
+                if not isinstance(
+                    selection, str
+                ) or not SEMANTIC_NAME_PATTERN.fullmatch(selection):
+                    raise ValueError(
+                        f"Checkbox-group field {field_name!r} has invalid selection {selection!r}"
+                    )
+                if not isinstance(checkbox_id, str) or checkbox_id not in registry:
+                    raise KeyError(
+                        f"Checkbox-group field {field_name!r} has unknown checkbox ID: {checkbox_id}"
+                    )
+                if checkbox_id in seen_checkboxes:
+                    raise ValueError(
+                        f"Checkbox fields {seen_checkboxes[checkbox_id]!r} and {field_name!r} conflict"
+                    )
+                seen_checkboxes[checkbox_id] = field_name
+            forbidden = {
+                "target",
+                "token",
+                "template_row",
+                "columns",
+                "row_targets",
+                "format_policy",
+                "empty_policy",
+                "key",
+            }
+            present = forbidden.intersection(field)
+            if present:
+                raise ValueError(
+                    f"Checkbox-group field {field_name!r} cannot define {', '.join(sorted(present))}"
+                )
+            continue
 
         target_id = field.get("target")
         if not isinstance(target_id, str):
@@ -234,6 +400,7 @@ def validate_template_contract(
             "text": "paragraph",
             "table_cell": "cell",
             "table_rows": "table",
+            "table_keyed_rows": "table",
             "placeholder": "paragraph",
         }[field_type]
         if target.get("type") != expected_type:
@@ -283,10 +450,44 @@ def validate_template_contract(
             )
 
         if field_type == "table_rows":
-            _validate_columns(field_name, field, target)
-        elif "columns" in field or "template_row" in field:
+            if "key" in field:
+                raise ValueError(
+                    f"Table-row field {field_name!r} cannot define a keyed-row selector"
+                )
+            has_columns = "columns" in field
+            has_row_targets = "row_targets" in field
+            if has_columns == has_row_targets:
+                raise ValueError(
+                    f"Table-row field {field_name!r} requires exactly one of columns or row_targets"
+                )
+            if has_columns:
+                _validate_columns(field_name, field, target)
+            else:
+                _validate_row_targets(field_name, field, target)
+            empty_policy = field.get("empty_policy", "remove_template_row")
+            if empty_policy not in {
+                "remove_template_row",
+                "retain_empty_row",
+                "error",
+            }:
+                raise ValueError(
+                    f"Table-row field {field_name!r} has unsupported empty_policy"
+                )
+        elif field_type == "table_keyed_rows":
+            if "columns" in field or "template_row" in field or "empty_policy" in field:
+                raise ValueError(
+                    f"Keyed-row field {field_name!r} cannot define repeat-row settings"
+                )
+            _validate_keyed_rows(field_name, field, target)
+        elif (
+            "columns" in field
+            or "row_targets" in field
+            or "template_row" in field
+            or "empty_policy" in field
+            or "key" in field
+        ):
             raise ValueError(
-                f"Field {field_name!r} row settings are only valid for table_rows"
+                f"Field {field_name!r} row settings are only valid for table row fields"
             )
 
     return normalized
@@ -389,14 +590,55 @@ def _compile_template_population(
         if value is None:
             if field["required"]:
                 raise ValueError(f"Required template field is null: {field_name}")
-            value = "" if field["type"] != "table_rows" else []
-        target = index[field["target"]]
+            value = (
+                []
+                if field["type"] in {"table_rows", "table_keyed_rows", "checkbox_group"}
+                else ""
+            )
         field_type = field["type"]
+        target: dict[str, Any] = (
+            index[field["target"]] if field_type != "checkbox_group" else {}
+        )
         original: Any
         proposed: Any
         operation_type: str
 
-        if field_type == "text":
+        if field_type == "checkbox_group":
+            if not isinstance(value, list) or any(
+                not isinstance(selection, str) for selection in value
+            ):
+                raise TypeError(
+                    f"Checkbox-group field {field_name!r} must be an array of strings"
+                )
+            if len(set(value)) != len(value):
+                raise ValueError(
+                    f"Checkbox-group field {field_name!r} contains duplicate selections"
+                )
+            checkbox_map = field["checkboxes"]
+            unknown_selections = set(value) - set(checkbox_map)
+            if unknown_selections:
+                raise ValueError(
+                    f"Checkbox-group field {field_name!r} has unknown selections: "
+                    + ", ".join(sorted(unknown_selections))
+                )
+            checkbox_registry = _checkbox_index(profile)
+            original = [
+                selection
+                for selection, checkbox_id in checkbox_map.items()
+                if checkbox_registry[checkbox_id]["checked"]
+            ]
+            proposed = value
+            operation_type = "set_checkbox_group"
+            for selection, checkbox_id in checkbox_map.items():
+                operations.append(
+                    {
+                        "op": "set_checkbox",
+                        "target": checkbox_id,
+                        "expected": checkbox_registry[checkbox_id]["checked"],
+                        "checked": selection in value,
+                    }
+                )
+        elif field_type == "text":
             if not isinstance(value, str):
                 raise TypeError(f"Text field {field_name!r} must be a string")
             original = target.get("text", "")
@@ -419,6 +661,83 @@ def _compile_template_population(
                 "value": value,
                 "format_policy": field.get("format_policy", "preserve_first_run"),
             }
+        elif field_type == "table_keyed_rows":
+            if not isinstance(value, list):
+                raise TypeError(f"Keyed-row field {field_name!r} must be an array")
+            key_specification = field["key"]
+            key_column = key_specification["column"]
+            match_policy = key_specification.get("match", "exact")
+
+            def normalize_key(item: Any, policy: str = match_policy) -> str:
+                text = str(item).strip()
+                return text.casefold() if policy == "case_insensitive" else text
+
+            row_lookup: dict[str, int] = {}
+            for existing_row_index, existing_row in enumerate(target.get("rows", [])):
+                cells = existing_row.get("cells", [])
+                if key_column >= len(cells):
+                    continue
+                row_key = normalize_key(cells[key_column].get("text", ""))
+                if row_key:
+                    if row_key in row_lookup:
+                        raise ValueError(
+                            f"Keyed-row field {field_name!r} has duplicate template key {row_key!r}"
+                        )
+                    row_lookup[row_key] = existing_row_index
+
+            original = []
+            proposed = value
+            operation_type = "populate_keyed_table_rows"
+            used_rows: set[int] = set()
+            for item_index, item in enumerate(value):
+                if not isinstance(item, dict):
+                    raise TypeError(
+                        f"Keyed-row field {field_name!r} row {item_index} must be an object"
+                    )
+                key_value = _resolve_data_path(
+                    item,
+                    key_specification.get("data_path", "/key"),
+                    f"{field_name}.key",
+                )
+                lookup_key = normalize_key(key_value)
+                if lookup_key not in row_lookup:
+                    raise ValueError(
+                        f"Keyed-row field {field_name!r} has no template row for {key_value!r}"
+                    )
+                row_index = row_lookup[lookup_key]
+                if row_index in used_rows:
+                    raise ValueError(
+                        f"Keyed-row field {field_name!r} selects template row {key_value!r} more than once"
+                    )
+                used_rows.add(row_index)
+                row_original: dict[str, str] = {}
+                for target_name, specification in field["row_targets"].items():
+                    entry = _profile_row_target(
+                        target, row_index, specification["target"]
+                    )
+                    if entry is None or entry.get("type") != "paragraph":
+                        raise ValueError(
+                            f"Keyed-row field {field_name!r} target {target_name!r} does not exist in row {row_index}"
+                        )
+                    item_value = _resolve_data_path(
+                        item,
+                        specification.get("data_path", "/" + target_name),
+                        f"{field_name}.{target_name}",
+                    )
+                    replacement = _table_cell_text(item_value, field_name, item_index)
+                    row_original[target_name] = entry.get("text", "")
+                    if entry["id"] in elements:
+                        raise ValueError(
+                            f"Keyed-row field {field_name!r} targets {entry['id']} more than once"
+                        )
+                    elements[entry["id"]] = {
+                        "expected": entry.get("text", ""),
+                        "value": replacement,
+                        "format_policy": specification.get(
+                            "format_policy", "preserve_first_run"
+                        ),
+                    }
+                original.append({"key": key_value, "values": row_original})
         elif field_type == "placeholder":
             if not isinstance(value, str):
                 raise TypeError(f"Placeholder field {field_name!r} must be a string")
@@ -429,40 +748,80 @@ def _compile_template_population(
         else:
             if not isinstance(value, list):
                 raise TypeError(f"Table-row field {field_name!r} must be an array")
-            ordered_columns = sorted(field["columns"].items(), key=lambda item: item[1])
-            compiled_rows: list[list[str]] = []
-            for row_index, row in enumerate(value):
-                if not isinstance(row, dict):
-                    raise TypeError(
-                        f"Table-row field {field_name!r} row {row_index} must be an object"
+            compiled_rows: list[Any] = []
+            operation_row_targets: dict[str, Any] | None = None
+            if "columns" in field:
+                ordered_columns = sorted(
+                    field["columns"].items(), key=lambda item: item[1]
+                )
+                for row_index, row in enumerate(value):
+                    if not isinstance(row, dict):
+                        raise TypeError(
+                            f"Table-row field {field_name!r} row {row_index} must be an object"
+                        )
+                    missing = set(field["columns"]) - set(row)
+                    if missing:
+                        raise ValueError(
+                            f"Table-row field {field_name!r} row {row_index}: "
+                            f"missing {', '.join(sorted(missing))}"
+                        )
+                    compiled_rows.append(
+                        [
+                            _table_cell_text(row[name], field_name, row_index)
+                            for name, _ in ordered_columns
+                        ]
                     )
-                missing = set(field["columns"]) - set(row)
-                if missing:
-                    raise ValueError(
-                        f"Table-row field {field_name!r} row {row_index}: "
-                        f"missing {', '.join(sorted(missing))}"
+            else:
+                operation_row_targets = {}
+                for name, specification in field["row_targets"].items():
+                    policy = FORMAT_POLICY_ALIASES.get(
+                        specification.get("format_policy", "preserve_first_run"),
+                        specification.get("format_policy", "preserve_first_run"),
                     )
-                values = [
-                    _table_cell_text(row[name], field_name, row_index)
-                    for name, _ in ordered_columns
-                ]
-                compiled_rows.append(values)
+                    operation_row_targets[name] = {
+                        "target": specification["target"],
+                        "format_policy": policy,
+                    }
+                for row_index, row in enumerate(value):
+                    compiled: dict[str, str] = {}
+                    for name, specification in field["row_targets"].items():
+                        if "data_path" in specification:
+                            item = _resolve_data_path(
+                                row, specification["data_path"], f"{field_name}.{name}"
+                            )
+                        elif isinstance(row, dict):
+                            item = row.get(name, _MISSING)
+                        else:
+                            item = _MISSING
+                        if item is _MISSING:
+                            raise ValueError(
+                                f"Table-row field {field_name!r} row {row_index}: missing {name}"
+                            )
+                        compiled[name] = _table_cell_text(item, field_name, row_index)
+                    compiled_rows.append(compiled)
             template = target["rows"][field["template_row"]]
             original = [cell.get("text", "") for cell in template["cells"]]
             proposed = compiled_rows
             operation_type = "repeat_table_rows"
-            operations.append(
-                {
-                    "op": "repeat_table_rows",
-                    "target": target["id"],
-                    "template_row": field["template_row"],
-                    "rows": compiled_rows,
-                }
-            )
+            operation = {
+                "op": "repeat_table_rows",
+                "target": target["id"],
+                "template_row": field["template_row"],
+                "rows": compiled_rows,
+            }
+            if "empty_policy" in field:
+                operation["empty_policy"] = field["empty_policy"]
+            if operation_row_targets is not None:
+                operation["row_targets"] = operation_row_targets
+            operations.append(operation)
 
         changes.append(
             {
-                "source_element": target["id"],
+                "source_element": (
+                    target["id"]
+                    if field_type != "checkbox_group"
+                    else list(field["checkboxes"].values())
+                ),
                 "semantic_field": field_name,
                 "original": original,
                 "proposed": proposed,
