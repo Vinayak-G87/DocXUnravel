@@ -1,4 +1,6 @@
+import contextlib
 import hashlib
+import io
 import json
 import tempfile
 import unittest
@@ -6,7 +8,9 @@ import zipfile
 from pathlib import Path
 
 from docx import Document
+from docx.oxml.ns import qn
 from docx.shared import Pt
+from lxml import etree
 
 from docxunravel import (
     create_fidelity_report,
@@ -17,6 +21,7 @@ from docxunravel import (
     render_document,
     validate_docx_package,
 )
+from docxunravel.cli import main
 from docxunravel.visual_regression import verify_visuals, visual_dependencies
 
 
@@ -77,6 +82,273 @@ class DocXUnravelTests(unittest.TestCase):
         )
         self.assertEqual(result["changed_elements"], 1)
         self.assertEqual(result["token_replacements"], 3)
+
+    def test_explicit_literal_placeholders_in_cells_and_split_runs(self):
+        document = Document(self.source)
+        paragraph = document.add_paragraph("Owner: ")
+        paragraph.add_run("[Enter ")
+        paragraph.add_run("owner]")
+        document.tables[0].cell(1, 0).text = "<Lead>"
+        document.add_paragraph("[Keep this] is not a placeholder")
+        document.save(self.source)
+
+        bundle = self.root / "literal-bundle"
+        profile = export_bundle(
+            self.source,
+            bundle,
+            placeholders={"OWNER": "[Enter owner]", "LEAD": "<Lead>"},
+        )
+        self.assertEqual(profile["placeholder_locations"]["OWNER"], ["body.p2"])
+        self.assertEqual(profile["placeholder_locations"]["LEAD"], ["body.t0.r1.c0.p0"])
+        self.assertIn("OWNER", profile["summary"]["tokens"])
+        self.assertIn("LEAD", profile["replacement_contract"]["tokens"])
+        self.assertEqual(profile["custom_placeholders"]["LEAD"], "<Lead>")
+        patch = {
+            "contract": profile["patch_contract"],
+            "tokens": {"OWNER": "Avery Patel", "LEAD": "Migration lead"},
+        }
+        self.assertTrue(preview_bundle(bundle, patch)["valid"])
+        output = self.root / "literal-output.docx"
+        result = render_bundle(bundle, output, patch)
+        self.assertEqual(result["token_replacements"], 2)
+        rendered = Document(output)
+        self.assertEqual(rendered.paragraphs[2].text, "Owner: Avery Patel")
+        self.assertEqual(rendered.tables[0].cell(1, 0).text, "Migration lead")
+        self.assertEqual(
+            rendered.paragraphs[3].text, "[Keep this] is not a placeholder"
+        )
+        self.assertTrue(
+            create_fidelity_report(self.source, output, bundle=bundle, patch=patch)[
+                "passed"
+            ]
+        )
+
+        with self.assertRaisesRegex(ValueError, "not present"):
+            preview_bundle(
+                bundle,
+                {"contract": profile["patch_contract"], "tokens": {"UNKNOWN": "x"}},
+            )
+        with self.assertRaisesRegex(ValueError, "not found"):
+            profile_document(self.source, placeholders={"NONE": "[Missing]"})
+        with self.assertRaisesRegex(ValueError, "overlap"):
+            profile_document(self.source, placeholders={"A": "<Lead>", "B": "Lead"})
+
+    def test_replacement_containing_its_own_placeholder_is_not_rescanned(self):
+        document = Document(self.source)
+        document.add_paragraph("[X] and [X]")
+        document.save(self.source)
+        bundle = self.root / "self-reference-bundle"
+        profile = export_bundle(self.source, bundle, placeholders={"X": "[X]"})
+        patch = {
+            "contract": profile["patch_contract"],
+            "tokens": {"X": "keep [X]", "TECH": "still {{TECH}}"},
+        }
+        output = self.root / "self-reference.docx"
+        result = render_bundle(bundle, output, patch)
+        rendered = Document(output)
+        self.assertEqual(rendered.paragraphs[2].text, "keep [X] and keep [X]")
+        self.assertEqual(rendered.tables[0].cell(1, 1).text, "still {{TECH}}")
+        self.assertEqual(result["token_replacements"], 3)
+        self.assertTrue(
+            create_fidelity_report(self.source, output, bundle=bundle, patch=patch)[
+                "passed"
+            ]
+        )
+
+    def test_token_replacement_preserves_spaces_across_runs(self):
+        document = Document(self.source)
+        paragraph = document.add_paragraph()
+        paragraph.add_run("[Enter ")
+        paragraph.add_run("owner]")
+        document.tables[0].cell(1, 0).text = "<Lead>"
+        document.save(self.source)
+        bundle = self.root / "spaces-bundle"
+        profile = export_bundle(
+            self.source,
+            bundle,
+            placeholders={"OWNER": "[Enter owner]", "LEAD": "<Lead>"},
+        )
+        output = self.root / "spaces.docx"
+        render_bundle(
+            bundle,
+            output,
+            {
+                "contract": profile["patch_contract"],
+                "tokens": {"OWNER": " leading and trailing ", "LEAD": " padded "},
+            },
+        )
+        rendered = Document(output)
+        self.assertEqual(rendered.paragraphs[2].text, " leading and trailing ")
+        self.assertEqual(rendered.tables[0].cell(1, 0).text, " padded ")
+        with zipfile.ZipFile(output) as archive:
+            root = etree.fromstring(archive.read("word/document.xml"))
+        xml_space = "{http://www.w3.org/XML/1998/namespace}space"
+        text_nodes = root.iter(qn("w:t"))
+        preserved = [
+            node.text for node in text_nodes if node.get(xml_space) == "preserve"
+        ]
+        self.assertIn(" leading and trailing ", preserved)
+        self.assertIn(" padded ", preserved)
+
+    def test_fidelity_ignores_new_literal_outside_original_placeholder_locations(self):
+        document = Document(self.source)
+        document.add_paragraph("[X]")
+        document.save(self.source)
+        bundle = self.root / "literal-location-bundle"
+        profile = export_bundle(self.source, bundle, placeholders={"X": "[X]"})
+        patch = {
+            "contract": profile["patch_contract"],
+            "elements": {
+                "body.p1": {"expected": "Original summary", "value": "Keep [X] here"}
+            },
+            "tokens": {"X": "Ada"},
+        }
+        output = self.root / "literal-location.docx"
+        render_bundle(bundle, output, patch)
+        rendered = Document(output)
+        self.assertEqual(rendered.paragraphs[1].text, "Keep [X] here")
+        self.assertEqual(rendered.paragraphs[2].text, "Ada")
+        self.assertTrue(
+            create_fidelity_report(self.source, output, bundle=bundle, patch=patch)[
+                "passed"
+            ]
+        )
+
+    def test_literal_backslashes_in_token_values_are_not_regex_expressions(self):
+        bundle = self.root / "backslash-bundle"
+        profile = export_bundle(self.source, bundle)
+        patch = {
+            "contract": profile["patch_contract"],
+            "tokens": {"CUSTOMER": r"C:\Users\Demo"},
+        }
+        output = self.root / "backslashes.docx"
+        render_bundle(bundle, output, patch)
+        self.assertIn(r"C:\Users\Demo", Document(output).paragraphs[0].text)
+        self.assertTrue(
+            create_fidelity_report(self.source, output, bundle=bundle, patch=patch)[
+                "passed"
+            ]
+        )
+
+    def test_explicit_only_ignores_unapproved_brace_tokens(self):
+        bundle = self.root / "explicit-bundle"
+        profile = export_bundle(
+            self.source,
+            bundle,
+            auto_placeholders=False,
+            placeholders={"TITLE_CUSTOMER": "{{ CUSTOMER }}"},
+        )
+        self.assertFalse(profile["auto_placeholders"])
+        self.assertEqual(profile["summary"]["tokens"], ["TITLE_CUSTOMER"])
+        self.assertEqual(
+            profile["placeholder_locations"]["TITLE_CUSTOMER"], ["body.p0"]
+        )
+        with self.assertRaisesRegex(ValueError, "not present"):
+            preview_bundle(
+                bundle,
+                {
+                    "contract": profile["patch_contract"],
+                    "tokens": {"TECH": "Unapproved"},
+                },
+            )
+        patch = {
+            "contract": profile["patch_contract"],
+            "tokens": {"TITLE_CUSTOMER": "Fictional Customer"},
+        }
+        output = self.root / "explicit.docx"
+        render_bundle(bundle, output, patch)
+        document = Document(output)
+        self.assertEqual(
+            document.paragraphs[0].text, "Architecture for Fictional Customer"
+        )
+        self.assertEqual(
+            document.sections[0].header.paragraphs[0].text,
+            "Confidential - {{CUSTOMER}}",
+        )
+        self.assertEqual(document.tables[0].cell(1, 1).text, "{{TECH}}")
+
+    def test_cli_placeholder_flags_extract_and_profile(self):
+        document = Document(self.source)
+        document.add_paragraph("[Replace this with owner]")
+        document.save(self.source)
+        bundle = self.root / "cli-bundle"
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(
+                main(
+                    [
+                        "extract",
+                        str(self.source),
+                        str(bundle),
+                        "--placeholder",
+                        "OWNER=[Replace this with owner]",
+                    ]
+                ),
+                0,
+            )
+        profile = json.loads((bundle / "profile.json").read_text(encoding="utf-8"))
+        self.assertEqual(profile["placeholder_locations"]["OWNER"], ["body.p2"])
+        output = self.root / "cli-profile.json"
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(
+                main(
+                    [
+                        "profile",
+                        str(self.source),
+                        str(output),
+                        "--placeholder",
+                        "OWNER=[Replace this with owner]",
+                    ]
+                ),
+                0,
+            )
+        self.assertEqual(
+            json.loads(output.read_text())["placeholder_locations"]["OWNER"],
+            ["body.p2"],
+        )
+        explicit = self.root / "explicit-profile.json"
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(
+                main(
+                    [
+                        "profile",
+                        str(self.source),
+                        str(explicit),
+                        "--explicit-placeholders-only",
+                    ]
+                ),
+                0,
+            )
+        self.assertEqual(json.loads(explicit.read_text())["summary"]["tokens"], [])
+        explicit_bundle = self.root / "explicit-cli-bundle"
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(
+                main(
+                    [
+                        "extract",
+                        str(self.source),
+                        str(explicit_bundle),
+                        "--explicit-placeholders-only",
+                        "--placeholder",
+                        "OWNER=[Replace this with owner]",
+                    ]
+                ),
+                0,
+            )
+        explicit_profile = json.loads((explicit_bundle / "profile.json").read_text())
+        self.assertEqual(explicit_profile["summary"]["tokens"], ["OWNER"])
+        with self.assertRaisesRegex(ValueError, "Duplicate --placeholder"):
+            with contextlib.redirect_stdout(io.StringIO()):
+                main(
+                    [
+                        "profile",
+                        str(self.source),
+                        str(output),
+                        "--placeholder",
+                        "OWNER=first",
+                        "--placeholder",
+                        "OWNER=second",
+                    ]
+                )
 
     def test_lossless_bundle_and_structural_rendering(self):
         bundle = self.root / "bundle"
@@ -403,11 +675,30 @@ class DocXUnravelTests(unittest.TestCase):
         "LibreOffice, PyMuPDF, and Pillow are optional visual-test dependencies",
     )
     def test_optional_visual_regression_for_no_op_output(self):
+        def verify_or_skip(*args, **kwargs):
+            try:
+                return verify_visuals(*args, **kwargs)
+            except RuntimeError as error:
+                if str(error).startswith(
+                    (
+                        "DOCX-to-PDF rendering failed for ",
+                        "DOCX-to-PDF rendering timed out after ",
+                    )
+                ) and f" for {self.source}" in str(error):
+                    self.skipTest(
+                        f"LibreOffice cannot render the source fixture: {error}"
+                    )
+                raise
+            except OSError as error:
+                if error.filename == visual_dependencies()["renderer"]:
+                    self.skipTest(f"LibreOffice could not be started: {error}")
+                raise
+
         bundle = self.root / "visual-bundle"
         profile = export_bundle(self.source, bundle)
         output = self.root / "visual-noop.docx"
         render_bundle(bundle, output, {"contract": profile["patch_contract"]})
-        report = verify_visuals(
+        report = verify_or_skip(
             self.source,
             output,
             self.root / "visual-report",
@@ -437,7 +728,7 @@ class DocXUnravelTests(unittest.TestCase):
                 "elements": {"body.p1": "A substantially different generated summary."},
             },
         )
-        bounded = verify_visuals(
+        bounded = verify_or_skip(
             self.source,
             changed_output,
             self.root / "visual-bounded-report",
@@ -448,7 +739,7 @@ class DocXUnravelTests(unittest.TestCase):
         self.assertFalse(bounded["passed"])
         self.assertIn(1, bounded["unexpected_changed_pages"])
 
-    def test_repository_regression_fixture_with_example_patch(self):
+    def test_repository_regression_fixture_with_patch(self):
         project_root = Path(__file__).resolve().parents[1]
         fixture = (
             project_root
@@ -456,7 +747,7 @@ class DocXUnravelTests(unittest.TestCase):
             / "fixtures"
             / "DocXUnravel_Regression_Test_Fixture.docx"
         )
-        patch_path = project_root / "examples" / "patches" / "schema-1.1-example.json"
+        patch_path = project_root / "tests" / "fixtures" / "regression-patch.json"
         bundle = self.root / "regression-bundle"
         output = self.root / "regression-output.docx"
 

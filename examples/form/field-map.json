@@ -1,0 +1,31 @@
+{
+  "source_sha256": "d66e7e91440536cc61e91222b6158dbfb4a014b33b10ba9a4e9ba9310d09a09b",
+  "status": "reviewed_mapping_for_this_template_only",
+  "fields": {
+    "name": "body.t0.r0.c1.p0",
+    "summary": "body.t0.r1.c1.p0"
+  },
+  "goals": {
+    "Item A": {
+      "goal": "body.t1.r1.c1.p0",
+      "metric": "body.t1.r1.c2.p0"
+    },
+    "Item B": {
+      "goal": "body.t1.r2.c1.p0",
+      "metric": "body.t1.r2.c2.p0"
+    }
+  },
+  "checkboxes": {
+    "Standard": "checkbox:7f4c0a2c821b3a11b6e69310913498d5f5a7ee15005d108edc7c08137966348d",
+    "Expedited": "checkbox:dc9a1fbe2c06a65da2d77c910d855be4ffe7ed21804d1f078a516a7c72b1af37"
+  },
+  "read_only": [
+    "Form",
+    "Guidance",
+    "Name and Summary labels",
+    "Goals",
+    "Item/Goal/Metric headings",
+    "Item A and Item B labels",
+    "Service option"
+  ]
+}

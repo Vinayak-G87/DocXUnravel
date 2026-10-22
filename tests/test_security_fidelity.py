@@ -17,6 +17,7 @@ from docxunravel import (
     preview_bundle,
     profile_document,
     render_bundle,
+    render_document,
     validate_docx_package,
 )
 from tests.support.fixture_factory import create_complex_fixture
@@ -88,6 +89,82 @@ class PackageSecurityTests(unittest.TestCase):
         invalid.write_bytes(b"not a zip file")
         with self.assertRaisesRegex(ValueError, "Invalid DOCX ZIP"):
             inspect_docx_archive(invalid)
+
+    def test_fidelity_deduplicates_merged_cell_paragraphs(self):
+        document = Document()
+        table = document.add_table(rows=3, cols=3)
+        table.style = "Table Grid"
+        table.cell(0, 0).merge(table.cell(2, 0)).text = "Shared guidance"
+        table.cell(0, 1).merge(table.cell(0, 2)).text = "[...]"
+        table.cell(1, 1).text = "Agility"
+        table.cell(2, 1).text = "Security"
+        document.save(self.source)
+        bundle = self.root / "merged-bundle"
+        profile = export_bundle(self.source, bundle)
+        patch = {
+            "contract": profile["patch_contract"],
+            "elements": {
+                "body.t0.r0.c2.p0": {"expected": "[...]", "value": "Reviewed value"}
+            },
+        }
+        output = self.root / "merged-filled.docx"
+        render_bundle(bundle, output, patch)
+        report = create_fidelity_report(self.source, output, bundle=bundle, patch=patch)
+        self.assertTrue(report["semantic_text_preservation"]["passed"])
+        self.assertTrue(report["passed"])
+        self.assertEqual(Document(output).tables[0].cell(0, 2).text, "Reviewed value")
+
+    def test_legacy_renderer_rejects_unsafe_archive_before_writing(self):
+        source = self.root / "unsafe-render.docx"
+        source.write_bytes(self.source.read_bytes())
+        with zipfile.ZipFile(source, "a") as archive:
+            archive.writestr("..\\escape.bin", b"unsafe")
+        output = self.root / "rendered.docx"
+        with self.assertRaisesRegex(ValueError, "Unsafe DOCX package path"):
+            render_document(source, output, {"tokens": {}})
+        self.assertFalse(output.exists())
+
+    def test_unsafe_zip_members_leave_no_bundle(self):
+        unsafe_names = (
+            "../escape.bin",
+            "/escape.bin",
+            "..\\escape.bin",
+            "word\\..\\escape.bin",
+            "word\\folder\\part.bin",
+            "C:\\escape.bin",
+            "C:/escape.bin",
+            "C:escape.bin",
+            "word/C:escape.bin",
+            "word//alias.bin",
+            "word/./alias.bin",
+            "word/./",
+            ".",
+        )
+        for index, name in enumerate(unsafe_names):
+            with self.subTest(name=name):
+                source = self.root / f"unsafe-{index}.docx"
+                source.write_bytes(self.source.read_bytes())
+                with zipfile.ZipFile(source, "a") as archive:
+                    archive.writestr(name, b"unsafe")
+                with self.assertRaisesRegex(ValueError, "Unsafe DOCX package path"):
+                    inspect_docx_archive(source)
+                bundle = self.root / f"bundle-{index}"
+                with self.assertRaisesRegex(ValueError, "Unsafe DOCX package path"):
+                    export_bundle(source, bundle)
+                self.assertFalse(bundle.exists())
+        self.assertFalse((self.root / "escape.bin").exists())
+
+    def test_invalid_archive_does_not_create_bundle(self):
+        malformed = self.root / "malformed-for-export.docx"
+        self._rewrite_part(malformed, "word/document.xml", b"<w:document")
+        invalid = self.root / "not-a-zip.docx"
+        invalid.write_bytes(b"not a zip file")
+        for index, source in enumerate((malformed, invalid)):
+            with self.subTest(source=source):
+                bundle = self.root / f"invalid-bundle-{index}"
+                with self.assertRaises(ValueError):
+                    export_bundle(source, bundle)
+                self.assertFalse(bundle.exists())
 
     def test_malformed_xml_and_entities_are_rejected(self):
         malformed = self.root / "malformed.docx"

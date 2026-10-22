@@ -81,8 +81,13 @@ def _render_pdf(source: Path, output_dir: Path, renderer: str, timeout: int) -> 
         ) from error
     pdf = output_dir / f"{source.stem}.pdf"
     if result.returncode != 0 or not pdf.exists():
-        detail = (result.stderr or result.stdout).strip()
-        raise RuntimeError(f"DOCX-to-PDF rendering failed for {source}: {detail}")
+        detail = (
+            result.stderr or result.stdout
+        ).strip() or "renderer produced no diagnostic output"
+        raise RuntimeError(
+            f"DOCX-to-PDF rendering failed for {source}: "
+            f"exit code {result.returncode}; {detail}"
+        )
     return pdf
 
 

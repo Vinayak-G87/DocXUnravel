@@ -1,0 +1,41 @@
+{
+  "contract": {
+    "schema_version": "1.1",
+    "source_sha256": "d66e7e91440536cc61e91222b6158dbfb4a014b33b10ba9a4e9ba9310d09a09b",
+    "profile_sha256": "75a1d4608343b3fa7f03522782bf0e883b5c35dfe030cf8c2bf846bf1b235a2b"
+  },
+  "elements": {
+    "body.t0.r0.c1.p0": {
+      "expected": "[...]",
+      "value": "Alex Example"
+    },
+    "body.t0.r1.c1.p0": {
+      "expected": "[...]",
+      "value": "Prepare a short weekly update."
+    },
+    "body.t1.r1.c1.p0": {
+      "expected": "",
+      "value": "Complete item a"
+    },
+    "body.t1.r1.c2.p0": {
+      "expected": "",
+      "value": "One item a delivered"
+    },
+    "body.t1.r2.c1.p0": {
+      "expected": "",
+      "value": "Complete item b"
+    },
+    "body.t1.r2.c2.p0": {
+      "expected": "",
+      "value": "One item b delivered"
+    }
+  },
+  "operations": [
+    {
+      "op": "set_checkbox",
+      "target": "checkbox:7f4c0a2c821b3a11b6e69310913498d5f5a7ee15005d108edc7c08137966348d",
+      "expected": false,
+      "checked": true
+    }
+  ]
+}
