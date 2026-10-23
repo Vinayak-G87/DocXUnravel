@@ -138,7 +138,7 @@ jobs:
       contents: write
     steps:
       - name: Download form example
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: release-examples
           path: release-assets
@@ -172,7 +172,7 @@ jobs:
       id-token: write
     steps:
       - name: Download verified distributions
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: pypi-distributions
           path: dist
