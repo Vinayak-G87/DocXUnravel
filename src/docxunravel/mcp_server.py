@@ -28,10 +28,7 @@ from starlette.responses import JSONResponse
 from . import __version__
 from .core import create_fidelity_report, export_bundle, validate_docx_package
 from .mcp_auth import OIDCJWTVerifier
-from .template_contract import (
-    populate_migration_template,
-    preview_migration_template_population,
-)
+from .template_contract import populate_template, preview_template_population
 
 READ_SCOPE = "documents:read"
 PREVIEW_SCOPE = "documents:preview"
@@ -165,17 +162,17 @@ class DocumentWorkspace:
         self,
         template_id: str,
         contract: dict[str, Any],
-        discovery: dict[str, Any],
+        data: dict[str, Any],
     ) -> dict[str, Any]:
         source = self._source_path(template_id)
         with self._temporary_bundle(source) as (bundle, _):
-            return preview_migration_template_population(bundle, contract, discovery)
+            return preview_template_population(bundle, contract, data)
 
     def populate(
         self,
         template_id: str,
         contract: dict[str, Any],
-        discovery: dict[str, Any],
+        data: dict[str, Any],
     ) -> dict[str, Any]:
         source = self._source_path(template_id)
         while True:
@@ -199,11 +196,11 @@ class DocumentWorkspace:
             temporary_root = Path(temporary)
             temporary_output = temporary_root / "output.docx"
             temporary_fidelity = temporary_root / "fidelity.json"
-            result = populate_migration_template(
+            result = populate_template(
                 bundle,
                 temporary_output,
                 contract,
-                discovery,
+                data,
                 fidelity_output=temporary_fidelity,
             )
             fidelity = json.loads(temporary_fidelity.read_text(encoding="utf-8"))
@@ -406,25 +403,21 @@ def create_mcp_server(
     async def preview_template_population(
         template_id: str,
         contract: dict[str, Any],
-        discovery: dict[str, Any],
+        data: dict[str, Any],
     ) -> dict[str, Any]:
-        """Validate and preview a migration-template population without creating output."""
+        """Validate and preview template data without creating output."""
         _require_scopes({READ_SCOPE, PREVIEW_SCOPE}, auth_enabled)
-        return await asyncio.to_thread(
-            workspace.preview, template_id, contract, discovery
-        )
+        return await asyncio.to_thread(workspace.preview, template_id, contract, data)
 
     @server.tool()
     async def populate_template(
         template_id: str,
         contract: dict[str, Any],
-        discovery: dict[str, Any],
+        data: dict[str, Any],
     ) -> dict[str, Any]:
         """Populate a template atomically and return a new opaque output ID."""
         _require_scopes({READ_SCOPE, PREVIEW_SCOPE, WRITE_SCOPE}, auth_enabled)
-        return await asyncio.to_thread(
-            workspace.populate, template_id, contract, discovery
-        )
+        return await asyncio.to_thread(workspace.populate, template_id, contract, data)
 
     @server.tool()
     async def validate_output(document_id: str) -> dict[str, Any]:

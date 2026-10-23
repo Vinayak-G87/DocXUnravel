@@ -3214,29 +3214,29 @@ def main(argv: list[str] | None = None) -> int:
 
     template_preview_parser = commands.add_parser(
         "template-preview",
-        help="Preview canonical migration discovery population without modifying a DOCX",
+        help="Preview template population without modifying a DOCX",
     )
     template_preview_parser.add_argument("bundle")
     template_preview_parser.add_argument("contract")
-    template_preview_parser.add_argument("discovery")
+    template_preview_parser.add_argument("data")
     template_preview_parser.add_argument("--output")
 
     template_patch_parser = commands.add_parser(
         "template-patch",
-        help="Compile canonical migration discovery data into a validated patch",
+        help="Compile template data into a validated patch",
     )
     template_patch_parser.add_argument("bundle")
     template_patch_parser.add_argument("contract")
-    template_patch_parser.add_argument("discovery")
+    template_patch_parser.add_argument("data")
     template_patch_parser.add_argument("output")
 
     template_populate_parser = commands.add_parser(
         "template-populate",
-        help="Populate a bundle from canonical migration discovery data",
+        help="Populate a bundle from template data",
     )
     template_populate_parser.add_argument("bundle")
     template_populate_parser.add_argument("contract")
-    template_populate_parser.add_argument("discovery")
+    template_populate_parser.add_argument("data")
     template_populate_parser.add_argument("output")
     template_populate_parser.add_argument("--patch-output")
     template_populate_parser.add_argument("--fidelity-output")
@@ -3376,9 +3376,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.command.startswith("template-"):
         from .template_contract import (
-            compile_migration_template_patch,
-            populate_migration_template,
-            preview_migration_template_population,
+            compile_template_patch,
+            populate_template,
+            preview_template_population,
             validate_template_contract,
         )
 
@@ -3396,9 +3396,9 @@ def main(argv: list[str] | None = None) -> int:
             }
             print(json.dumps(result, indent=2))
             return 0
-        discovery = _load_json(args.discovery)
+        data = _load_json(args.data)
         if args.command == "template-preview":
-            result = preview_migration_template_population(bundle, contract, discovery)
+            result = preview_template_population(bundle, contract, data)
             if args.output:
                 Path(args.output).write_text(
                     json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8"
@@ -3406,7 +3406,7 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(result, indent=2, ensure_ascii=False))
             return 0 if result["valid"] else 2
         if args.command == "template-patch":
-            patch = compile_migration_template_patch(profile, contract, discovery)
+            patch = compile_template_patch(profile, contract, data)
             Path(args.output).write_text(
                 json.dumps(patch, indent=2, ensure_ascii=False), encoding="utf-8"
             )
@@ -3417,11 +3417,11 @@ def main(argv: list[str] | None = None) -> int:
                 )
             )
             return 0
-        result = populate_migration_template(
+        result = populate_template(
             bundle,
             args.output,
             contract,
-            discovery,
+            data,
             patch_output=args.patch_output,
             fidelity_output=args.fidelity_output,
         )

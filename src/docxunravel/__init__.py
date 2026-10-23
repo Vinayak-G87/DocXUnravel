@@ -42,18 +42,27 @@ from .markdown_workflow import (
     preview_markdown_population,
     render_markdown_docx,
 )
-from .migration_discovery import validate_migration_discovery
 from .template_contract import (
     compile_migration_template_patch,
     compile_template_patch,
     populate_migration_template,
+    populate_template,
     preview_migration_template_population,
     preview_template_population,
     template_contract_binding,
     validate_template_contract,
 )
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
+
+
+def __getattr__(name: str):
+    if name == "validate_migration_discovery":
+        from .migration_discovery import validate_migration_discovery
+
+        return validate_migration_discovery
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
 
 __all__ = [
     "compact_paragraph_content",
@@ -78,6 +87,7 @@ __all__ = [
     "PackageLimits",
     "populate_markdown_docx",
     "populate_migration_template",
+    "populate_template",
     "preview_bundle",
     "preview_markdown_population",
     "preview_migration_template_population",

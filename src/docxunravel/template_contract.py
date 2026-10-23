@@ -30,7 +30,6 @@ from .core import (
     render_bundle,
     validate_patch,
 )
-from .migration_discovery import validate_migration_discovery
 
 TEMPLATE_CONTRACT_VERSION = "0.1"
 FIELD_TYPES = {
@@ -890,6 +889,8 @@ def compile_migration_template_patch(
 ) -> dict[str, Any]:
     """Validate canonical discovery data and compile a schema 1.1 patch."""
 
+    from .migration_discovery import validate_migration_discovery
+
     validate_migration_discovery(discovery)
     return compile_template_patch(profile, contract, discovery)
 
@@ -899,15 +900,17 @@ def preview_migration_template_population(
 ) -> dict[str, Any]:
     """Validate canonical discovery data and preview without writing a DOCX."""
 
+    from .migration_discovery import validate_migration_discovery
+
     validate_migration_discovery(discovery)
     return preview_template_population(bundle, contract, discovery)
 
 
-def populate_migration_template(
+def populate_template(
     bundle: str | Path,
     output: str | Path,
     contract: dict[str, Any],
-    discovery: dict[str, Any],
+    data: dict[str, Any],
     *,
     patch_output: str | Path | None = None,
     fidelity_output: str | Path | None = None,
@@ -916,7 +919,7 @@ def populate_migration_template(
 
     bundle = Path(bundle)
     output = Path(output)
-    preview = preview_migration_template_population(bundle, contract, discovery)
+    preview = preview_template_population(bundle, contract, data)
     if not preview["valid"]:
         unsupported = "; ".join(preview["unsupported_operations"])
         raise ValueError(
@@ -957,3 +960,27 @@ def populate_migration_template(
         else None,
         "fidelity": fidelity,
     }
+
+
+def populate_migration_template(
+    bundle: str | Path,
+    output: str | Path,
+    contract: dict[str, Any],
+    discovery: dict[str, Any],
+    *,
+    patch_output: str | Path | None = None,
+    fidelity_output: str | Path | None = None,
+) -> dict[str, Any]:
+    """Opt in to migration discovery validation before generic population."""
+
+    from .migration_discovery import validate_migration_discovery
+
+    validate_migration_discovery(discovery)
+    return populate_template(
+        bundle,
+        output,
+        contract,
+        discovery,
+        patch_output=patch_output,
+        fidelity_output=fidelity_output,
+    )

@@ -1,6 +1,9 @@
 import json
+import subprocess
+import sys
 import tempfile
 import unittest
+import zipfile
 from pathlib import Path
 
 from docx import Document
@@ -11,9 +14,57 @@ from docxunravel import (
     inspect_controls,
     validate_docx_package,
 )
+from scripts.package_examples import EXAMPLE_FILES, build_example_archive
 
 
 class FormExampleArtifactTests(unittest.TestCase):
+    def test_release_archive_runs_without_repository_examples(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            first = directory / "examples.zip"
+            second = directory / "again.zip"
+            build_example_archive(first)
+            build_example_archive(second)
+            self.assertEqual(first.read_bytes(), second.read_bytes())
+            with zipfile.ZipFile(first) as archive:
+                self.assertEqual(archive.namelist(), list(EXAMPLE_FILES))
+                self.assertIsNone(archive.testzip())
+                archive.extractall(directory / "downloaded")
+
+            example = directory / "downloaded" / "examples" / "form"
+            patch = json.loads((example / "patch.json").read_text(encoding="utf-8"))
+            downloaded = directory / "downloaded"
+            commands = (
+                (
+                    "extract",
+                    "examples/form/form-template.docx",
+                    "form-bundle",
+                    "--explicit-placeholders-only",
+                ),
+                ("preview", "form-bundle", "examples/form/patch.json"),
+                (
+                    "render-bundle",
+                    "form-bundle",
+                    "examples/form/patch.json",
+                    "filled.docx",
+                ),
+            )
+            for command in commands:
+                subprocess.run(
+                    [sys.executable, "-m", "docxunravel", *command],
+                    cwd=downloaded,
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
+            profile = json.loads(
+                (downloaded / "form-bundle" / "profile.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertEqual(patch["contract"], profile["patch_contract"])
+            self.assertTrue(validate_docx_package(downloaded / "filled.docx")["valid"])
+
     def test_form_artifacts(self):
         example = Path(__file__).resolve().parents[1] / "examples" / "form"
         template = example / "form-template.docx"

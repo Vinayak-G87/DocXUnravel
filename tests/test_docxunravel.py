@@ -3,8 +3,10 @@ import hashlib
 import io
 import json
 import tempfile
+import tomllib
 import unittest
 import zipfile
+from importlib.metadata import version as distribution_version
 from pathlib import Path
 
 from docx import Document
@@ -12,6 +14,7 @@ from docx.oxml.ns import qn
 from docx.shared import Pt
 from lxml import etree
 
+import docxunravel
 from docxunravel import (
     create_fidelity_report,
     export_bundle,
@@ -22,7 +25,11 @@ from docxunravel import (
     validate_docx_package,
 )
 from docxunravel.cli import main
-from docxunravel.visual_regression import verify_visuals, visual_dependencies
+from docxunravel.visual_regression import (
+    compare_pdfs,
+    verify_visuals,
+    visual_dependencies,
+)
 
 
 class DocXUnravelTests(unittest.TestCase):
@@ -52,6 +59,14 @@ class DocXUnravelTests(unittest.TestCase):
 
     def tearDown(self):
         self.temp_dir.cleanup()
+
+    def test_release_version_matches_package_metadata(self):
+        with (Path(__file__).resolve().parents[1] / "pyproject.toml").open(
+            "rb"
+        ) as file:
+            version = tomllib.load(file)["project"]["version"]
+        self.assertEqual(docxunravel.__version__, version)
+        self.assertEqual(distribution_version("docxunravel"), version)
 
     def test_profile_and_render(self):
         profile = profile_document(self.source)
@@ -669,6 +684,27 @@ class DocXUnravelTests(unittest.TestCase):
                     "runs": {"body.p0": [{"index": 0, "value": "replacement"}]},
                 },
             )
+
+    @unittest.skipUnless(
+        visual_dependencies()["imaging"],
+        "PyMuPDF and Pillow are optional visual-test dependencies",
+    )
+    def test_pdf_visual_comparison_without_libreoffice(self):
+        import pymupdf
+
+        original = self.root / "original.pdf"
+        pdf = pymupdf.open()
+        page = pdf.new_page(width=200, height=200)
+        page.insert_text((24, 50), "Sample text")
+        pdf.save(str(original))
+        pdf.close()
+
+        report = compare_pdfs(
+            original, original, self.root / "pdf-comparison", no_op=True
+        )
+        self.assertTrue(report["passed"])
+        self.assertEqual(report["pages"][0]["status"], "no_change")
+        self.assertTrue((self.root / "pdf-comparison" / "page-001-diff.png").is_file())
 
     @unittest.skipUnless(
         visual_dependencies()["available"],
