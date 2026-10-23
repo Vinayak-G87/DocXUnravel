@@ -112,7 +112,7 @@ jobs:
         run: python scripts/package_examples.py release-assets/docxunravel-examples.zip
       - name: Upload example archive
         if: github.event_name == 'release' && !github.event.release.prerelease
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-examples
           path: release-assets/docxunravel-examples.zip
@@ -123,7 +123,7 @@ jobs:
         run: sha256sum dist/*.tar.gz dist/*.whl > dist/SHA256SUMS
       - name: Upload verified distributions
         if: github.event_name == 'release'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pypi-distributions
           path: dist/
