@@ -107,6 +107,17 @@ jobs:
               if Parser().parsestr(archive.read(metadata_files[0]).decode('utf-8'))['Version'] != version:
                   raise SystemExit('Wheel metadata version mismatch')
           PY
+      - name: Package downloadable form example
+        if: github.event_name == 'release' && !github.event.release.prerelease
+        run: python scripts/package_examples.py release-assets/docxunravel-examples.zip
+      - name: Upload example archive
+        if: github.event_name == 'release' && !github.event.release.prerelease
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-examples
+          path: release-assets/docxunravel-examples.zip
+          if-no-files-found: error
+          retention-days: 7
       - name: Record distribution checksums
         if: github.event_name == 'release'
         run: sha256sum dist/*.tar.gz dist/*.whl > dist/SHA256SUMS
@@ -118,6 +129,39 @@ jobs:
           path: dist/
           if-no-files-found: error
           retention-days: 7
+
+  release-examples:
+    if: github.event_name == 'release' && github.event.action == 'published' && !github.event.release.prerelease
+    needs: [test, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download form example
+        uses: actions/download-artifact@v4
+        with:
+          name: release-examples
+          path: release-assets
+      - name: Check example archive
+        run: |
+          python - <<'PY'
+          import zipfile
+
+          with zipfile.ZipFile('release-assets/docxunravel-examples.zip') as archive:
+              expected = {
+                  'examples/form/form-template.docx',
+                  'examples/form/form-filled.docx',
+                  'examples/form/field-map.json',
+                  'examples/form/patch.json',
+              }
+              if set(archive.namelist()) != expected or archive.testzip() is not None:
+                  raise SystemExit('Invalid release example archive')
+          PY
+      - name: Attach example to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$RELEASE_TAG" release-assets/docxunravel-examples.zip --repo "$GITHUB_REPOSITORY"
 
   publish:
     if: github.event_name == 'release' && github.event.action == 'published' && !github.event.release.prerelease

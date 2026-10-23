@@ -217,7 +217,7 @@ class MCPWorkspaceTests(unittest.TestCase):
         self.workspace = DocumentWorkspace(self.root / "workspace")
         self.source = self.workspace.documents / "template_01.docx"
         document = Document()
-        document.add_paragraph("HLD for {{ CUSTOMER }}", style="Title")
+        document.add_paragraph("Project for {{ CUSTOMER }}", style="Title")
         document.add_paragraph("Original scope")
         table = document.add_table(rows=2, cols=4)
         table.style = "Table Grid"
@@ -227,17 +227,22 @@ class MCPWorkspaceTests(unittest.TestCase):
             table.cell(1, index).text = value
         document.save(str(self.source))
 
-        self.discovery = json.loads(
-            (
-                Path(__file__).resolve().parent
-                / "fixtures"
-                / "migration-discovery.json"
-            ).read_text(encoding="utf-8")
-        )
+        self.data = {
+            "customer": {"name": "Northstar Research Group"},
+            "project": {"scope": "A project summary."},
+            "application_inventory": [
+                {
+                    "id": "APP-1",
+                    "name": "Portal",
+                    "owner": "Team A",
+                    "business_criticality": "high",
+                }
+            ],
+        }
         self.profile = self.workspace.profile("template_01")
         self.contract = {
             "contract_version": "0.1",
-            "document_type": "azure_migration_hld",
+            "document_type": "project_form",
             "binding": template_contract_binding(self.profile),
             "fields": {
                 "customer_brand": {
@@ -294,11 +299,11 @@ class MCPWorkspaceTests(unittest.TestCase):
 
     def test_preview_is_read_only_and_population_is_atomic_and_validated(self):
         before = list(self.workspace.outputs.iterdir())
-        preview = self.workspace.preview("template_01", self.contract, self.discovery)
+        preview = self.workspace.preview("template_01", self.contract, self.data)
         self.assertTrue(preview["valid"])
         self.assertEqual(list(self.workspace.outputs.iterdir()), before)
 
-        result = self.workspace.populate("template_01", self.contract, self.discovery)
+        result = self.workspace.populate("template_01", self.contract, self.data)
         self.assertRegex(result["output_id"], r"^[0-9a-f]{32}$")
         self.assertTrue(result["fidelity_passed"])
         self.assertTrue(result["render"]["integrity"]["valid"])
@@ -314,7 +319,7 @@ class MCPWorkspaceTests(unittest.TestCase):
         stale_contract = json.loads(json.dumps(self.contract))
         stale_contract["binding"]["source_sha256"] = "0" * 64
         with self.assertRaises(ValueError):
-            self.workspace.populate("template_01", stale_contract, self.discovery)
+            self.workspace.populate("template_01", stale_contract, self.data)
         self.assertEqual(len(list(self.workspace.outputs.glob("*.docx"))), count)
         self.assertFalse(list(self.workspace.outputs.glob("*.tmp")))
         self.assertFalse(list(self.workspace.outputs.glob("render-*")))

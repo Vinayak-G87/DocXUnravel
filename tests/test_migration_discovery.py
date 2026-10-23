@@ -5,6 +5,7 @@ from pathlib import Path
 
 from docxunravel.migration_discovery import validate_migration_discovery
 from docxunravel.schemas import schema_path
+from docxunravel.template_contract import compile_migration_template_patch
 
 
 class MigrationDiscoveryTests(unittest.TestCase):
@@ -24,6 +25,10 @@ class MigrationDiscoveryTests(unittest.TestCase):
         self.assertTrue(validated["fictional"])
         self.assertIn("ALL CUSTOMER", validated["fictional_notice"])
         self.assertEqual(len(validated["application_inventory"]), 3)
+
+    def test_legacy_wrapper_requires_explicit_migration_data(self):
+        with self.assertRaisesRegex(ValueError, "missing"):
+            compile_migration_template_patch({}, {}, {"customer": {"name": "Example"}})
 
     def test_schema_is_separate_from_template_contract(self):
         schema = json.loads(

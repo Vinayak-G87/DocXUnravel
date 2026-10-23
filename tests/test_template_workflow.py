@@ -10,8 +10,8 @@ from docx import Document
 from docxunravel import export_bundle, validate_docx_package
 from docxunravel.cli import main
 from docxunravel.template_contract import (
-    populate_migration_template,
-    preview_migration_template_population,
+    populate_template,
+    preview_template_population,
     template_contract_binding,
 )
 
@@ -20,20 +20,35 @@ class TemplateWorkflowTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.root = Path(self.temporary.name)
-        self.discovery = json.loads(
-            (
-                Path(__file__).resolve().parent
-                / "fixtures"
-                / "migration-discovery.json"
-            ).read_text(encoding="utf-8")
-        )
-        self.discovery_path = self.root / "discovery.json"
-        self.discovery_path.write_text(
-            json.dumps(self.discovery, indent=2), encoding="utf-8"
-        )
+        self.data = {
+            "customer": {"name": "Northstar Research Group"},
+            "project": {"scope": "A concise project summary."},
+            "application_inventory": [
+                {
+                    "id": "APP-1",
+                    "name": "Portal",
+                    "owner": "Team A",
+                    "business_criticality": "high",
+                },
+                {
+                    "id": "APP-2",
+                    "name": "Billing",
+                    "owner": "Team B",
+                    "business_criticality": "medium",
+                },
+                {
+                    "id": "APP-3",
+                    "name": "Support",
+                    "owner": "Team C",
+                    "business_criticality": "low",
+                },
+            ],
+        }
+        self.data_path = self.root / "data.json"
+        self.data_path.write_text(json.dumps(self.data, indent=2), encoding="utf-8")
         self.source = self.root / "workflow-template.docx"
         document = Document()
-        document.add_paragraph("HLD for {{ CUSTOMER }}", style="Title")
+        document.add_paragraph("Project for {{ CUSTOMER }}", style="Title")
         document.add_paragraph("Original project scope")
         table = document.add_table(rows=2, cols=4)
         table.style = "Table Grid"
@@ -46,7 +61,7 @@ class TemplateWorkflowTests(unittest.TestCase):
         self.profile = export_bundle(self.source, self.bundle)
         self.contract = {
             "contract_version": "0.1",
-            "document_type": "azure_migration_hld",
+            "document_type": "project_form",
             "binding": template_contract_binding(self.profile),
             "fields": {
                 "customer_brand": {
@@ -105,7 +120,7 @@ class TemplateWorkflowTests(unittest.TestCase):
                 "template-preview",
                 str(self.bundle),
                 str(self.contract_path),
-                str(self.discovery_path),
+                str(self.data_path),
                 "--output",
                 str(preview_path),
             ]
@@ -121,7 +136,7 @@ class TemplateWorkflowTests(unittest.TestCase):
                 "template-patch",
                 str(self.bundle),
                 str(self.contract_path),
-                str(self.discovery_path),
+                str(self.data_path),
                 str(patch_path),
             ]
         )
@@ -140,7 +155,7 @@ class TemplateWorkflowTests(unittest.TestCase):
                 "template-populate",
                 str(self.bundle),
                 str(self.contract_path),
-                str(self.discovery_path),
+                str(self.data_path),
                 str(generated),
                 "--patch-output",
                 str(emitted_patch),
@@ -155,9 +170,7 @@ class TemplateWorkflowTests(unittest.TestCase):
         self.assertTrue(emitted_patch.exists())
         self.assertTrue(fidelity.exists())
         generated_document = Document(str(generated))
-        self.assertIn(
-            "Fictional Northstar Research Group", generated_document.paragraphs[0].text
-        )
+        self.assertIn("Northstar Research Group", generated_document.paragraphs[0].text)
         self.assertEqual(len(generated_document.tables[0].rows), 4)
 
     def test_unsupported_layout_is_reported_and_output_is_not_created(self):
@@ -172,7 +185,7 @@ class TemplateWorkflowTests(unittest.TestCase):
         profile = export_bundle(source, bundle)
         contract = {
             "contract_version": "0.1",
-            "document_type": "unsupported_hld",
+            "document_type": "unsupported_form",
             "binding": template_contract_binding(profile),
             "fields": {
                 "applications": {
@@ -190,14 +203,12 @@ class TemplateWorkflowTests(unittest.TestCase):
                 }
             },
         }
-        preview = preview_migration_template_population(
-            bundle, contract, self.discovery
-        )
+        preview = preview_template_population(bundle, contract, self.data)
         self.assertFalse(preview["valid"])
         self.assertTrue(preview["unsupported_operations"])
         output = self.root / "must-not-exist.docx"
         with self.assertRaisesRegex(ValueError, "unsupported operations"):
-            populate_migration_template(bundle, output, contract, self.discovery)
+            populate_template(bundle, output, contract, self.data)
         self.assertFalse(output.exists())
 
 

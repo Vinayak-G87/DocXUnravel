@@ -10,24 +10,42 @@ Requires Python 3.11 or newer.
 python -m pip install docxunravel
 ```
 
-Until the first PyPI release, install from this repository instead:
-
-```sh
-python -m pip install -e .
-```
+The PyPI package contains the library and CLI. Download the sample files separately from the GitHub Release.
 
 ## Try the form example
 
-The [form example](examples/form/README.md) has two `[...]` fields, a small table, and two checkboxes. Its patch is already bound to the included template.
+The [form example](https://github.com/Vinayak-G87/DocXUnravel/blob/main/examples/form/README.md) has two `[...]` fields, a small table, and two checkboxes. Its patch is bound to the included template. The four example files are distributed as a [GitHub Release ZIP](https://github.com/Vinayak-G87/DocXUnravel/releases/download/v0.4.1/docxunravel-examples.zip), not in the PyPI package. The ZIP will be available after the `v0.4.1` release workflow finishes.
 
-```sh
-python -m docxunravel extract examples/form/form-template.docx form-bundle \
-  --explicit-placeholders-only
-python -m docxunravel preview form-bundle examples/form/patch.json
-python -m docxunravel render-bundle form-bundle examples/form/patch.json filled.docx
-```
+Run these steps in order, using the Python environment where you installed DocXUnravel:
 
-Compare [the template](examples/form/form-template.docx) and [the filled example](examples/form/form-filled.docx), or inspect the [field map](examples/form/field-map.json). The field map belongs to this form, not to other DOCX files.
+1. Download and unzip the example into a new working directory. No repository clone is needed.
+
+   ```sh
+   mkdir docxunravel-example
+   cd docxunravel-example
+   curl -fL -o docxunravel-examples.zip https://github.com/Vinayak-G87/DocXUnravel/releases/download/v0.4.1/docxunravel-examples.zip
+   python -m zipfile -e docxunravel-examples.zip .
+   ```
+
+2. Extract the template. This creates `form-bundle/profile.json`, which the next commands need. Use a new bundle directory if `form-bundle` already contains files.
+
+   ```sh
+   python -m docxunravel extract examples/form/form-template.docx form-bundle --explicit-placeholders-only
+   ```
+
+3. Preview the patch. The first argument is the bundle directory; the second is the patch file. This step does not write a DOCX.
+
+   ```sh
+   python -m docxunravel preview form-bundle examples/form/patch.json
+   ```
+
+4. Render the filled document as `filled.docx` in your working directory.
+
+   ```sh
+   python -m docxunravel render-bundle form-bundle examples/form/patch.json filled.docx
+   ```
+
+Compare [the template](https://github.com/Vinayak-G87/DocXUnravel/blob/main/examples/form/form-template.docx) and [the filled example](https://github.com/Vinayak-G87/DocXUnravel/blob/main/examples/form/form-filled.docx), or inspect the [field map](https://github.com/Vinayak-G87/DocXUnravel/blob/main/examples/form/field-map.json). The field map belongs to this form, not to other DOCX files.
 
 ## Work with your own DOCX
 
@@ -54,7 +72,7 @@ Write a JSON patch with the `patch_contract` copied from the profile. For exampl
 }
 ```
 
-The ID above is illustrative. Get the actual ID from your document. `expected` makes the patch fail if that paragraph has changed. Use `operations` for table rows and checkbox controls; see [the form patch](examples/form/patch.json) for working examples.
+The ID above is illustrative. Get the actual ID from your document. `expected` makes the patch fail if that paragraph has changed. Use `operations` for table rows and checkbox controls; see [the form patch](https://github.com/Vinayak-G87/DocXUnravel/blob/main/examples/form/patch.json) for working examples.
 
 ```sh
 python -m docxunravel preview bundle patch.json
@@ -79,7 +97,7 @@ The profile records where `OWNER` occurs. A patch can then set `"tokens": {"OWNE
 
 ### Python callers and agents
 
-Callers can inspect the profile and choose targets with their own Python or agent logic. There is no requirement to use the included form's field names or layout:
+Callers can inspect the profile and choose targets with their own Python or agent logic. There is no requirement to use the included form's field names or layout. This snippet also assumes you are running from the repository root:
 
 ```python
 import json
@@ -104,14 +122,14 @@ For a different DOCX, build the patch from *its* profile. Check ambiguous matche
 - `markdown-inspect input.md` parses supported Markdown. `markdown-preview` and `markdown-populate` map named Markdown fields to a DOCX through a template contract. Run `python -m docxunravel <command> --help` for arguments.
 - `visual original.docx output.docx visual-report --expected-pages 1` uses LibreOffice and the optional `visual` dependencies to compare rendered pages. Install them with `python -m pip install 'docxunravel[visual]'`. An expected page change is an allowance, not proof that every border or line stayed in place.
 
-An optional MCP server is available with `docxunravel[mcp]`. Its deployment and authentication settings are in [docs/architecture.md](docs/architecture.md).
+An optional MCP server is available with `docxunravel[mcp]`. Its deployment and authentication settings are in [docs/architecture.md](https://github.com/Vinayak-G87/DocXUnravel/blob/main/docs/architecture.md).
 
 ## Limits and security
 
 DOCX files can contain complex OOXML. Extraction checks archive paths, XML, and size limits; a patch is bound to the extracted source. Untouched package parts are hash-checked and copied through. Layout can still change when new text grows, and not every Word object is editable. Use visual comparison when page layout matters. Do not assume that a DOCX is safe to open in Word or LibreOffice merely because it passed package checks.
 
-Profiles and bundles contain document text. Handle them like the source DOCX. For vulnerability reports, see [SECURITY.md](SECURITY.md). For tests and the gated PyPI release process, see [docs/releasing.md](docs/releasing.md).
+Profiles and bundles contain document text. Handle them like the source DOCX. For vulnerability reports, see [SECURITY.md](https://github.com/Vinayak-G87/DocXUnravel/blob/main/SECURITY.md). For tests and the gated PyPI release process, see [docs/releasing.md](https://github.com/Vinayak-G87/DocXUnravel/blob/main/docs/releasing.md).
 
 ## Contributing
 
-Bug reports, ideas, and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup and review steps. Security issues should be reported privately through [SECURITY.md](SECURITY.md). License: [MIT](LICENSE).
+Bug reports, ideas, and pull requests are welcome. See [CONTRIBUTING.md](https://github.com/Vinayak-G87/DocXUnravel/blob/main/CONTRIBUTING.md) for setup and review steps. Security issues should be reported privately through [SECURITY.md](https://github.com/Vinayak-G87/DocXUnravel/blob/main/SECURITY.md). License: [MIT](https://github.com/Vinayak-G87/DocXUnravel/blob/main/LICENSE).
