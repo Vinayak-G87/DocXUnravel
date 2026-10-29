@@ -486,6 +486,34 @@ class DocXUnravelTests(unittest.TestCase):
             for name in original.namelist():
                 self.assertEqual(original.read(name), generated.read(name), name)
 
+    def test_no_op_patch_preserves_untyped_word_trash_entries(self):
+        trash_content = b"opaque Word recovery data\x00\x01"
+        with zipfile.ZipFile(self.source, "a") as archive:
+            archive.writestr("trash/0000.dat", trash_content)
+
+        bundle = self.root / "trash-bundle"
+        profile = export_bundle(self.source, bundle)
+        output = self.root / "trash-output.docx"
+        result = render_bundle(
+            bundle,
+            output,
+            {"contract": profile["patch_contract"]},
+        )
+
+        self.assertTrue(result["integrity"]["valid"])
+        with zipfile.ZipFile(output) as generated:
+            self.assertEqual(generated.read("trash/0000.dat"), trash_content)
+
+    def test_untyped_non_trash_entry_is_rejected(self):
+        with zipfile.ZipFile(self.source, "a") as archive:
+            archive.writestr("undeclared/0000.dat", b"not an OPC part")
+
+        with self.assertRaisesRegex(
+            ValueError,
+            "No content type declared for package part: undeclared/0000.dat",
+        ):
+            validate_docx_package(self.source)
+
     def test_mixed_run_formatting_policies(self):
         bundle = self.root / "format-bundle"
         profile = export_bundle(self.source, bundle)

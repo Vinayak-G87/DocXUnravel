@@ -2304,7 +2304,12 @@ def validate_docx_package(
             if node.tag.endswith("Override")
         }
         for name in names:
-            if name in {"[Content_Types].xml"} or name.endswith(".rels"):
+            # Word may leave opaque recovery data here without an OPC content type.
+            if (
+                name in {"[Content_Types].xml"}
+                or name.endswith(".rels")
+                or name.startswith("trash/")
+            ):
                 continue
             extension = PurePosixPath(name).suffix.lstrip(".").lower()
             if name not in overrides and extension not in defaults:
