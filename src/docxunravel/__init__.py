@@ -53,7 +53,7 @@ from .template_contract import (
     validate_template_contract,
 )
 
-__version__ = "0.4.1"
+__version__ = "0.4.2"
 
 
 def __getattr__(name: str):

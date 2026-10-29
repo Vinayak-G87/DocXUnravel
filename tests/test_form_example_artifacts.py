@@ -63,7 +63,29 @@ class FormExampleArtifactTests(unittest.TestCase):
                 )
             )
             self.assertEqual(patch["contract"], profile["patch_contract"])
-            self.assertTrue(validate_docx_package(downloaded / "filled.docx")["valid"])
+            rendered = downloaded / "filled.docx"
+            self.assertTrue(validate_docx_package(rendered)["valid"])
+            source = Document(str(example / "form-template.docx"))
+            result = Document(str(rendered))
+            self.assertEqual(len(source.sections), len(result.sections))
+            for before, after in zip(source.sections, result.sections):
+                for property_name in (
+                    "orientation",
+                    "page_width",
+                    "page_height",
+                    "top_margin",
+                    "bottom_margin",
+                    "left_margin",
+                    "right_margin",
+                    "header_distance",
+                    "footer_distance",
+                    "gutter",
+                ):
+                    with self.subTest(property=property_name):
+                        self.assertEqual(
+                            getattr(before, property_name),
+                            getattr(after, property_name),
+                        )
 
     def test_form_artifacts(self):
         example = Path(__file__).resolve().parents[1] / "examples" / "form"
