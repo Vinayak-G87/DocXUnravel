@@ -1,3 +1,5 @@
+[![CI and PyPI release](https://github.com/Vinayak-G87/DocXUnravel/actions/workflows/ci-release.yml/badge.svg)](https://github.com/Vinayak-G87/DocXUnravel/actions/workflows/ci-release.yml)
+
 # DocXUnravel
 
 DocXUnravel reads DOCX files, extracts their text and structure, and applies checked edits without rebuilding the document from scratch. It is a Python library with a CLI. Your application or agent decides what a field means; DocXUnravel validates the patch and keeps untouched parts of the DOCX intact.
